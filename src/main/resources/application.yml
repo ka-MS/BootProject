@@ -1,0 +1,25 @@
+#  spring.mvc.pathmatch.matching-strategy? default ?? ant_path_matcher -> path_pattern_parser? ????? ?? ??
+logging:
+  level:
+    org:
+      springframework:
+        jdbc:
+          core:
+            JdbcTemplate: DEBUG
+        transaction: DEBUG
+spring:
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
+  datasource:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/bootproject?useSSL=false&serverTimezone=UTC
+      username: root
+      password: itmsg4u!
+
+mybatis:
+  type-aliases-package: com.example.bootproject.post.domain.Post
+  mapper-locations: classpath:/mapper/**/*.xml
+  configuration:
+    jdbc-type-for-null: null
+
