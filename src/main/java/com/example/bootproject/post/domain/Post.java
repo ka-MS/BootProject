@@ -3,6 +3,8 @@ package com.example.bootproject.post.domain;
 
 import lombok.*;
 
+import javax.validation.constraints.Pattern;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -14,17 +16,22 @@ public class Post extends BaseEntity{
     private String title;
     private String content;
 
-    public void checkTitle(String title){
-        if(!title.matches("^.{3,200}")){
-            throw new IllegalArgumentException("");
-        }
-        this.title = title;
-    }
+    public static class PostBuilder{
 
-    public void checkContent(String content){
-        if(!title.matches("^.{0,200}")){
-            throw new IllegalArgumentException("");
+        public PostBuilder title(String title){
+            if(!title.matches("^.{3,200}")){
+                throw new IllegalArgumentException("제목 200글자 이하로");
+            }
+            this.title = title;
+            return this;
         }
-        this.content = content;
+
+        public PostBuilder content(String content){
+            if(!title.matches("^.{0,1000}")){
+                throw new IllegalArgumentException("게시글 1000글자 이내로");
+            }
+            this.content = content;
+            return this;
+        }
     }
 }
