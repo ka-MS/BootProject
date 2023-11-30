@@ -15,9 +15,27 @@
         select * from post
     </select>
 
+    <select id="getPost" resultMap="PostResultMap">
+        select * from post where id = #{id}
+    </select>
+
     <insert id="insertPost" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         INSERT INTO post (title, content, created_at, updated_at)
         VALUES (#{title}, #{content}, NOW(), NOW())
     </insert>
+
+    <update id="updatePost">
+        UPDATE post
+        SET title = #{title},content = #{content},updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="softDeletePost">
+        UPDATE post SET deleted_at = NOW() WHERE id = #{id}
+    </update>
+
+    <delete id="deletePost" >
+        DELETE FROM post WHERE id = ${id}
+    </delete>
 
 </mapper>

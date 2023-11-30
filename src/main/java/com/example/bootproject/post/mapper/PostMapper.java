@@ -9,5 +9,13 @@ import java.util.*;
 public interface PostMapper {
 
     List<Post> selectAllPosts();
-    int insertPost(Post post);
+    Long insertPost(Post post);
+
+    int softDeletePost(Long id);
+
+    int deletePost(Long id);
+
+    Post getPost(Long id);
+
+    Long updatePost(Post post);
 }
