@@ -59,7 +59,7 @@ public class PostService {
     public PostUpdateDTO updatePost(PostRegistDTO rPost, Long id){
         PostDetailDTO dPost = getPost(id);
         Long modifiableDate = dPost.getModifiableDate();
-        if(modifiableDate >= 10){
+        if(modifiableDate <= 0){
             throw new IllegalStateException("수정 기한이 끝난 게시물");
         }
         postMapper.updatePost(
@@ -70,7 +70,7 @@ public class PostService {
                         .build());
         return PostUpdateDTO.builder()
                 .postDetailDTO(getPost(id))
-                .message(modifiableDate == 9 ? "하루가 지나면 수정을 못한다" : null)
+                .message(modifiableDate == 1 ? "하루가 지나면 수정을 못한다" : modifiableDate+"일 남음")
                 .build();
     }
 
@@ -94,7 +94,7 @@ public class PostService {
 
     public long getModifiableDate(LocalDateTime date) {
         LocalDateTime nowDate = LocalDateTime.now();
-        return ChronoUnit.DAYS.between(date,nowDate);
+        return 10-ChronoUnit.DAYS.between(date, nowDate);
     }
 
 
