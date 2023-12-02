@@ -10,8 +10,7 @@ spring:
       password: itmsg4u!
 
 mybatis:
-  type-aliases-package: com.example.bootproject.post.domain.Post
+#  type-aliases-package: com.example.bootproject.post.domain.Post
   mapper-locations: classpath:/mapper/**/*.xml
-  configuration:
-    jdbc-type-for-null: null
-
+#  configuration:
+#    jdbc-type-for-null: null

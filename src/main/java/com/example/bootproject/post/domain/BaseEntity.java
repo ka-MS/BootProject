@@ -11,4 +11,12 @@ public class BaseEntity {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
+    public void interceptUpdatedAt(){
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void interceptCreatedAt(){
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
 }

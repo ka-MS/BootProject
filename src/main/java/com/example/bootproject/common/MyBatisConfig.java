@@ -1,5 +1,7 @@
 package com.example.bootproject.common;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -20,6 +22,11 @@ public class MyBatisConfig {
     @Value("${mybatis.mapper-locations}")
     String mPath;
 
+    @Bean
+    public MybatisInterceptor mybatisInterceptor() {
+        return new MybatisInterceptor();
+    }
+
     @Bean(name = "dataSource")
     @ConfigurationProperties(prefix = "spring.datasource")
     public DataSource DataSource() {
@@ -28,10 +35,14 @@ public class MyBatisConfig {
 
 
     @Bean(name = "SqlSessionFactory")
-    public SqlSessionFactory SqlSessionFactory(@Qualifier("dataSource") DataSource DataSource, ApplicationContext applicationContext) throws Exception {
+    public SqlSessionFactory SqlSessionFactory(@Qualifier("dataSource") DataSource DataSource
+            , ApplicationContext applicationContext
+            , MybatisInterceptor mybatisInterceptor) throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(DataSource);
         sqlSessionFactoryBean.setMapperLocations(applicationContext.getResources(mPath));
+        sqlSessionFactoryBean.setPlugins(new Interceptor[]{mybatisInterceptor});
+
         return sqlSessionFactoryBean.getObject();
     }
 
@@ -39,5 +50,8 @@ public class MyBatisConfig {
     public SqlSessionTemplate SqlSessionTemplate(@Qualifier("SqlSessionFactory") SqlSessionFactory firstSqlSessionFactory) {
         return new SqlSessionTemplate(firstSqlSessionFactory);
     }
+
+
+
 
 }
