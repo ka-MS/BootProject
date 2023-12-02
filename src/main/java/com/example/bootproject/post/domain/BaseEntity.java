@@ -1,5 +1,6 @@
 package com.example.bootproject.post.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

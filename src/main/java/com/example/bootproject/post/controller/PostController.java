@@ -7,16 +7,13 @@ import com.example.bootproject.post.dto.PostRegistDTO;
 import com.example.bootproject.post.dto.PostUpdateDTO;
 import com.example.bootproject.post.service.PostService;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping(value = "/api/posts")
 @AllArgsConstructor
 public class PostController {
 
@@ -39,12 +36,12 @@ public class PostController {
     }
 
     @PostMapping("")
-    public ResponseEntity<PostDetailDTO> insertPost(PostRegistDTO post){
+    public ResponseEntity<PostDetailDTO> insertPost(@RequestBody PostRegistDTO post){
         return ResponseEntity.ok().body(postService.insertPost(post));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostUpdateDTO> updatePost(@PathVariable("id") Long id,PostRegistDTO post){
+    public ResponseEntity<PostUpdateDTO> updatePost(@PathVariable("id") Long id,@RequestBody PostRegistDTO post){
         return ResponseEntity.ok().body(postService.updatePost(post, id));
     }
 

@@ -28,6 +28,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     compileOnly("org.projectlombok:lombok")
+    implementation("com.google.code.gson:gson")
     annotationProcessor("org.projectlombok:lombok")
     implementation("org.springframework:spring-jdbc")
     implementation ("org.springframework.boot:spring-boot-starter-data-jdbc")
