@@ -15,18 +15,31 @@
         select * from post
     </select>
 
+    <select id="selectPostsByKeywords" resultMap="PostResultMap">
+        SELECT * FROM post
+        WHERE title like CONCAT('%', #{title}, '%') OR title IS NULL
+        <choose>
+            <when test='sortOrder.name() == "ASC"'>
+                ORDER BY created_at ASC
+            </when>
+            <otherwise>
+                ORDER BY created_at DESC
+            </otherwise>
+        </choose>
+    </select>
+
     <select id="getPost" resultMap="PostResultMap">
         select * from post where id = #{id}
     </select>
 
     <insert id="insertPost" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         INSERT INTO post (title, content, created_at, updated_at)
-        VALUES (#{title}, #{content}, NOW(), NOW())
+        VALUES (#{title}, #{content}, #{createdAt}, #{updatedAt})
     </insert>
 
     <update id="updatePost">
         UPDATE post
-        SET title = #{title},content = #{content},updated_at = NOW()
+        SET title = #{title},content = #{content},updated_at = #{updatedAt}
         WHERE id = #{id}
     </update>
 
@@ -35,7 +48,7 @@
     </update>
 
     <delete id="deletePost" >
-        DELETE FROM post WHERE id = ${id}
+        DELETE FROM post WHERE id = ${id}content
     </delete>
 
 </mapper>

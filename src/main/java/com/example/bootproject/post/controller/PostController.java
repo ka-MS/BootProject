@@ -1,6 +1,7 @@
 package com.example.bootproject.post.controller;
 
 import com.example.bootproject.post.domain.Post;
+import com.example.bootproject.post.domain.PostSearch;
 import com.example.bootproject.post.dto.PostDetailDTO;
 import com.example.bootproject.post.dto.PostRegistDTO;
 import com.example.bootproject.post.dto.PostUpdateDTO;
@@ -33,8 +34,8 @@ public class PostController {
     }
 
     @GetMapping("")
-    public ResponseEntity searchPost(){
-        return ResponseEntity.ok().body("success");
+    public ResponseEntity<List<PostDetailDTO>> searchPost(PostSearch search){
+        return ResponseEntity.ok().body(postService.postListSearch(search));
     }
 
     @PostMapping("")

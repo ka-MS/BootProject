@@ -1,6 +1,7 @@
 package com.example.bootproject.post.service;
 
 import com.example.bootproject.post.domain.Post;
+import com.example.bootproject.post.domain.PostSearch;
 import com.example.bootproject.post.dto.PostDetailDTO;
 import com.example.bootproject.post.dto.PostRegistDTO;
 import com.example.bootproject.post.dto.PostUpdateDTO;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -36,6 +38,9 @@ public class PostService {
         if(post.getDeletedAt() != null){
             throw new IllegalStateException("삭제된 게시물");
         }
+        return postToPostDetailDTO(post);
+    }
+    private static PostDetailDTO postToPostDetailDTO(Post post){
         return PostDetailDTO.builder().id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
@@ -43,6 +48,10 @@ public class PostService {
                 .updatedAt(post.getUpdatedAt())
                 .modifiableDate(getModifiableDate(post.getCreatedAt()))
                 .build();
+    }
+    public List<PostDetailDTO> postListSearch(PostSearch postSearch){
+        List<Post> lPost = postMapper.selectPostsByKeywords(postSearch);
+        return lPost.stream().map(PostService::postToPostDetailDTO).collect(Collectors.toList());
     }
 
     @Transactional
@@ -92,7 +101,7 @@ public class PostService {
             throw new IllegalStateException("없는 게시물");
     }
 
-    public long getModifiableDate(LocalDateTime date) {
+    private static long getModifiableDate(LocalDateTime date) {
         LocalDateTime nowDate = LocalDateTime.now();
         return 10-ChronoUnit.DAYS.between(date, nowDate);
     }

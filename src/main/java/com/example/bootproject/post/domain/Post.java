@@ -1,6 +1,8 @@
 package com.example.bootproject.post.domain;
 
 
+import com.example.bootproject.post.dto.PostDetailDTO;
+import com.example.bootproject.post.service.PostService;
 import lombok.*;
 
 import javax.validation.constraints.Pattern;
@@ -15,6 +17,7 @@ public class Post extends BaseEntity{
     private Long id;
     private String title;
     private String content;
+
 
     public static class PostBuilder{
 
