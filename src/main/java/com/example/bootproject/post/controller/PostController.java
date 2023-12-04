@@ -6,55 +6,57 @@ import com.example.bootproject.post.dto.PostDetailDTO;
 import com.example.bootproject.post.dto.PostRegistDTO;
 import com.example.bootproject.post.dto.PostUpdateDTO;
 import com.example.bootproject.post.service.PostService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/posts")
-@AllArgsConstructor
+//초기화 되지 않은 final 필드나, @NonNull 이 붙은 필드에 대해 생성자를 생성해 준다(생성자 주입)
+@RequiredArgsConstructor
 public class PostController {
 
-    private PostService postService;
+    private final PostService postService;
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Post>> allPosts(){
+    @GetMapping("/api/posts/all")
+    public List<Post> allPosts() {
         List<Post> posts = postService.allPostList();
-        return ResponseEntity.ok().body(posts);
+
+        return posts;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PostDetailDTO> getPost(@PathVariable("id") Long id){
-        return ResponseEntity.ok().body(postService.getPost(id));
+    @GetMapping("/api/posts/{postId}")
+    public PostDetailDTO getPost(@PathVariable("postId") Long id) {
+        PostDetailDTO postDetail = postService.getPost(id);
+
+        return postDetail;
     }
 
-    @GetMapping("")
-    public ResponseEntity<List<PostDetailDTO>> searchPost(PostSearch search){
-        return ResponseEntity.ok().body(postService.postListSearch(search));
+    @GetMapping("/api/posts")
+    public List<PostDetailDTO> searchPost(PostSearch search) {
+        List<PostDetailDTO> postDetails = postService.postListSearch(search);
+
+        return postDetails;
     }
 
-    @PostMapping("")
-    public ResponseEntity<PostDetailDTO> insertPost(@RequestBody PostRegistDTO post){
-        return ResponseEntity.ok().body(postService.insertPost(post));
+    @PostMapping("/api/posts")
+    public ResponseEntity<PostDetailDTO> insertPost(@RequestBody PostRegistDTO post) {
+        PostDetailDTO postDetail = postService.insertPost(post);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(postDetail);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PostUpdateDTO> updatePost(@PathVariable("id") Long id,@RequestBody PostRegistDTO post){
-        return ResponseEntity.ok().body(postService.updatePost(post, id));
+    @PutMapping("/api/posts/{postId}")
+    public PostUpdateDTO updatePost(@PathVariable("postId") Long id, @RequestBody PostRegistDTO postRegist) {
+        PostUpdateDTO postUpdate = postService.updatePost(postRegist, id);
+
+        return postUpdate;
     }
 
-    @DeleteMapping("/{id}/soft")
-    public ResponseEntity softDeletePost(@PathVariable("id") Long id){
-        postService.softDeletePost(id);
-        return ResponseEntity.ok().body("success");
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity deletePost(@PathVariable("id") Long id){
+    @DeleteMapping("/api/posts/{postId}")
+    public void deletePost(@PathVariable("postId") Long id) {
         postService.deletePost(id);
-        return ResponseEntity.ok().body("success");
     }
-
 }
