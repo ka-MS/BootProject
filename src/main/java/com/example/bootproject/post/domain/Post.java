@@ -21,16 +21,16 @@ public class Post extends BaseEntity {
     public static class PostBuilder {
 
         public PostBuilder title(String title) {
-            if (!title.matches("^.{3,200}")) {
-                throw new IllegalArgumentException("제목 200글자 이하로");
+            if (!title.matches("^.{3,200}$")) {
+                throw new IllegalArgumentException("Content must be up to 200 characters.");
             }
             this.title = title;
             return this;
         }
 
         public PostBuilder content(String content) {
-            if (!title.matches("^.{0,1000}")) {
-                throw new IllegalArgumentException("게시글 1000글자 이내로");
+            if (!title.matches("^.{0,1000}$")) {
+                throw new IllegalArgumentException("Content must be up to 1000 characters.");
             }
             this.content = content;
             return this;

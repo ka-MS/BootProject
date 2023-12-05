@@ -1,6 +1,8 @@
 package com.example.bootproject.post.service;
 
 import com.example.bootproject.common.ApplicationYamlRead;
+import com.example.bootproject.exception.BadRequestException;
+import com.example.bootproject.exception.NotFoundException;
 import com.example.bootproject.post.domain.Post;
 import com.example.bootproject.post.domain.PostSearch;
 import com.example.bootproject.post.dto.PostDetailDTO;
@@ -8,6 +10,7 @@ import com.example.bootproject.post.dto.PostRegistDTO;
 import com.example.bootproject.post.dto.PostUpdateDTO;
 import com.example.bootproject.post.mapper.PostMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +21,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PostService {
 
-    final PostMapper postMapper;
+    @Autowired
+    private PostMapper postMapper;
 
     public List<Post> allPostList() {
         return postMapper.selectAllPosts();
@@ -28,7 +32,7 @@ public class PostService {
         Post post = postMapper.getPost(id);
 
         if (post == null) {
-            throw new IllegalArgumentException("There are no post");
+            throw new NotFoundException("There is no post with id: " + id);
         }
 
         return post;
@@ -38,7 +42,7 @@ public class PostService {
         Post post = getRawPost(id);
 
         if (post.getDeletedAt() != null) {
-            throw new IllegalStateException("Post already deleted");
+            throw new BadRequestException("Post with id " + id + " is already deleted");
         }
 
         return Post.toPostDetailDTO(post);
@@ -69,7 +73,7 @@ public class PostService {
         Post post = new Post(id, postRegistDTO.getTitle(), postRegistDTO.getContent());
 
         if (modifiableDate <= modifiableDateLimit) {
-            throw new IllegalStateException("Posts that are overdue for editing");
+            throw new BadRequestException("Editing is overdue for post with id " + id);
         }
 
         postMapper.updatePost(post);
