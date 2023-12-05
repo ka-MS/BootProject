@@ -13,6 +13,5 @@ public class PostSearch {
     private String title;
     private String content;
     private SortOrder sortOrder;
-
 }
 enum SortOrder{ ASC, DESC;}

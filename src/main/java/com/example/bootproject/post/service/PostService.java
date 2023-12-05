@@ -1,5 +1,6 @@
 package com.example.bootproject.post.service;
 
+import com.example.bootproject.common.ApplicationYamlRead;
 import com.example.bootproject.post.domain.Post;
 import com.example.bootproject.post.domain.PostSearch;
 import com.example.bootproject.post.dto.PostDetailDTO;
@@ -10,9 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,83 +26,65 @@ public class PostService {
 
     public Post getRawPost(Long id) {
         Post post = postMapper.getPost(id);
-        if(post == null) {
-            throw new IllegalArgumentException("게시글이 없어");
+
+        if (post == null) {
+            throw new IllegalArgumentException("There are no post");
         }
+
         return post;
     }
-    public PostDetailDTO getPost(Long id){
+
+    public PostDetailDTO getPost(Long id) {
         Post post = getRawPost(id);
-        if(post.getDeletedAt() != null){
-            throw new IllegalStateException("삭제된 게시물");
+
+        if (post.getDeletedAt() != null) {
+            throw new IllegalStateException("Post already deleted");
         }
-        return postToPostDetailDTO(post);
+
+        return Post.toPostDetailDTO(post);
     }
-    private static PostDetailDTO postToPostDetailDTO(Post post){
-        return PostDetailDTO.builder().id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .createdAt(post.getCreatedAt())
-                .updatedAt(post.getUpdatedAt())
-                .modifiableDate(getModifiableDate(post.getCreatedAt()))
-                .build();
-    }
-    public List<PostDetailDTO> postListSearch(PostSearch postSearch){
-        List<Post> lPost = postMapper.selectPostsByKeywords(postSearch);
-        return lPost.stream().map(PostService::postToPostDetailDTO).collect(Collectors.toList());
+
+    public List<PostDetailDTO> postListSearch(PostSearch postSearch) {
+        List<Post> postList = postMapper.selectPostsByKeywords(postSearch);
+        List<PostDetailDTO> postDetailDTOList =
+                postList.stream().map(Post::toPostDetailDTO).collect(Collectors.toList());
+
+        return postDetailDTOList;
     }
 
     @Transactional
-    public PostDetailDTO insertPost(PostRegistDTO rPost){
-        // 정규식체크추가
-        Post post = Post.builder()
-                .title(rPost.getTitle())
-                .content(rPost.getContent())
-                .build();
+    public PostDetailDTO insertPost(PostRegistDTO postRegistDTO) {
+        Post post = PostRegistDTO.toPost(postRegistDTO);
         postMapper.insertPost(post);
-        return getPost(post.getId());
-    }
-    @Transactional
-    public PostUpdateDTO updatePost(PostRegistDTO rPost, Long id){
-        PostDetailDTO dPost = getPost(id);
-        Long modifiableDate = dPost.getModifiableDate();
-        if(modifiableDate <= 0){
-            throw new IllegalStateException("수정 기한이 끝난 게시물");
-        }
-        postMapper.updatePost(
-                Post.builder()
-                        .id(id)
-                        .title(rPost.getTitle())
-                        .content(rPost.getContent())
-                        .build());
-        return PostUpdateDTO.builder()
-                .postDetailDTO(getPost(id))
-                .message(modifiableDate == 1 ? "하루가 지나면 수정을 못한다" : modifiableDate+"일 남음")
-                .build();
+        PostDetailDTO postDetailDTO = getPost(post.getId());
+
+        return postDetailDTO;
     }
 
     @Transactional
-    public void softDeletePost(Long id) {
+    public PostUpdateDTO updatePost(PostRegistDTO postRegistDTO, Long id) {
+        PostDetailDTO postDetailDTO = getPost(id);
+        Long modifiableDate = postDetailDTO.getModifiableDate();
+        int modifiableDateLimit = ApplicationYamlRead.getModificationLimitValue();
+        Post post = new Post(id, postRegistDTO.getTitle(), postRegistDTO.getContent());
+
+        if (modifiableDate <= modifiableDateLimit) {
+            throw new IllegalStateException("Posts that are overdue for editing");
+        }
+
+        postMapper.updatePost(post);
+
+        return PostDetailDTO.toPostUpdateDTO(postDetailDTO);
+    }
+
+    @Transactional
+    public void deletePost(Long id) {
         Post post = getRawPost(id);
-        if(post.getDeletedAt() != null){
-            throw new IllegalStateException("삭제된 게시물");
+
+        if (post.getDeletedAt() == null) {
+            postMapper.softDeletePost(id);
+        } else {
+            postMapper.deletePost(id);
         }
-        int result = postMapper.softDeletePost(id);
-        if (result == 0)
-            throw new IllegalStateException("없는 게시물");
     }
-
-    @Transactional
-    public void deletePost(Long id){
-        int result = postMapper.deletePost(id);
-        if (result == 0)
-            throw new IllegalStateException("없는 게시물");
-    }
-
-    private static long getModifiableDate(LocalDateTime date) {
-        LocalDateTime nowDate = LocalDateTime.now();
-        return 10-ChronoUnit.DAYS.between(date, nowDate);
-    }
-
-
 }

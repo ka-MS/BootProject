@@ -29,30 +29,30 @@ public class PostController {
 
     @GetMapping("/api/posts/{postId}")
     public PostDetailDTO getPost(@PathVariable("postId") Long id) {
-        PostDetailDTO postDetail = postService.getPost(id);
+        PostDetailDTO postDetailDTO = postService.getPost(id);
 
-        return postDetail;
+        return postDetailDTO;
     }
 
     @GetMapping("/api/posts")
     public List<PostDetailDTO> searchPost(PostSearch search) {
-        List<PostDetailDTO> postDetails = postService.postListSearch(search);
+        List<PostDetailDTO> postDetailDTOS = postService.postListSearch(search);
 
-        return postDetails;
+        return postDetailDTOS;
     }
 
     @PostMapping("/api/posts")
     public ResponseEntity<PostDetailDTO> insertPost(@RequestBody PostRegistDTO post) {
-        PostDetailDTO postDetail = postService.insertPost(post);
+        PostDetailDTO postDetailDTO = postService.insertPost(post);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(postDetail);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postDetailDTO);
     }
 
     @PutMapping("/api/posts/{postId}")
-    public PostUpdateDTO updatePost(@PathVariable("postId") Long id, @RequestBody PostRegistDTO postRegist) {
-        PostUpdateDTO postUpdate = postService.updatePost(postRegist, id);
+    public PostUpdateDTO updatePost(@PathVariable("postId") Long id, @RequestBody PostRegistDTO postRegistDTO) {
+        PostUpdateDTO postUpdateDTO = postService.updatePost(postRegistDTO, id);
 
-        return postUpdate;
+        return postUpdateDTO;
     }
 
     @DeleteMapping("/api/posts/{postId}")

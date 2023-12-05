@@ -1,14 +1,20 @@
 package com.example.bootproject.post.dto;
 
+import com.example.bootproject.post.domain.Post;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 @Builder
 public class PostRegistDTO {
 
     private String title;
     private String content;
+
+    public static Post toPost(PostRegistDTO postRegistDTO) {
+        return Post.builder()
+                .title(postRegistDTO.getTitle())
+                .content(postRegistDTO.getContent())
+                .build();
+    }
 }
