@@ -10,15 +10,15 @@ import java.util.*;
 public interface PostMapper {
 
     List<Post> selectAllPosts();
-    Long insertPost(Post post);
+    void insertPost(Post post);
 
-    int softDeletePost(Long id);
+    void softDeletePost(Long id);
 
-    int deletePost(Long id);
+    void deletePost(Long id);
 
     Post getPost(Long id);
 
-    Long updatePost(Post post);
+    void updatePost(Post post);
 
     List<Post> selectPostsByKeywords(PostSearch postSearch);
 }
