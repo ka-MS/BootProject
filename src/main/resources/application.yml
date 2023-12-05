@@ -14,3 +14,7 @@ mybatis:
   mapper-locations: classpath:/mapper/**/*.xml
 #  configuration:
 #    jdbc-type-for-null: null
+
+constant-data:
+  modification-limit-value: 0
+  modifiable-date-value: 10
