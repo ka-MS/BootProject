@@ -2,10 +2,12 @@ package com.example.bootproject.post.domain;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 public class BaseEntity {
 
     private LocalDateTime createdAt;

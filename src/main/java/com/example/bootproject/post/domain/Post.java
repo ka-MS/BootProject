@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
@@ -31,7 +32,7 @@ public class Post extends BaseEntity {
         }
 
         public PostBuilder content(String content) {
-            if (!title.matches("^.{0,1000}$")) {
+            if (content != null && !content.matches("^.{0,1000}$")) {
                 throw new IllegalArgumentException("Content must be up to 1000 characters.");
             }
             this.content = content;

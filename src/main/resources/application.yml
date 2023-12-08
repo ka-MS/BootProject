@@ -5,7 +5,7 @@ spring:
       matching-strategy: ant_path_matcher
   datasource:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://localhost:3306/bootproject?useSSL=false&serverTimezone=UTC
+      jdbc-url: jdbc:mysql://localhost:3306/bootproject?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       username: root
       password: itmsg4u!
 

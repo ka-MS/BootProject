@@ -28,7 +28,7 @@ public class PostService {
     private final PostMapper postMapper;
 
     @Value("${constant-data.modifiable-date-value}")
-    private static int modifiableDateValue;
+    private int modifiableDateValue;
     @Value("${constant-data.modification-limit-value}")
     private static int modificationLimitValue;
 
@@ -37,6 +37,10 @@ public class PostService {
     }
 
     public Post getRawPost(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
+
         Post post = postMapper.getPost(id);
 
         if (post == null) {
@@ -75,21 +79,25 @@ public class PostService {
 
     @Transactional
     public PostUpdateDTO updatePost(PostRegistDTO postRegistDTO, Long id) {
-        PostDetailDTO postDetailDTO = getPost(id);
-        Long modifiableDate = postDetailDTO.getModifiableDate();
+        PostDetailDTO postDetailCheck = getPost(id);
+        Long modifiableDate = postDetailCheck.getModifiableDate();
         Post post = PostRegistDTO.toPost(id, postRegistDTO);
 
-        if (modifiableDate <= modificationLimitValue) {
+        if (modifiableDate <= ApplicationYamlRead.getModificationLimitValue()) {
             throw new BadRequestException("Editing is overdue for post with id " + id);
         }
 
         postMapper.updatePost(post);
 
-        return PostDetailDTO.toPostUpdateDTO(postDetailDTO);
+        PostDetailDTO postDetail = getPost(id);
+
+        return PostDetailDTO.toPostUpdateDTO(postDetail);
     }
 
     @Transactional
     public void deletePost(Long id) {
+        getRawPost(id); // 게시글 유무 체크
+
         postMapper.deletePost(id);
     }
 
@@ -107,6 +115,8 @@ public class PostService {
     public static long getModifiableDate(LocalDateTime date) {
         LocalDateTime nowDate = LocalDateTime.now();
 
-        return modifiableDateValue - ChronoUnit.DAYS.between(date, nowDate);
+        long result = ApplicationYamlRead.getModifiableDateValue() - ChronoUnit.DAYS.between(date, nowDate);
+
+        return result;
     }
 }
