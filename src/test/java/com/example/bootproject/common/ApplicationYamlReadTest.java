@@ -13,6 +13,7 @@ class ApplicationYamlReadTest {
         int modifiableDateValue = ApplicationYamlRead.modifiableDateValue;
 
         System.out.println("modifiableDate : " + modifiableDateValue);
+
         assertThat(modifiableDateValue).isEqualTo(10);
     }
 
@@ -21,7 +22,7 @@ class ApplicationYamlReadTest {
         int modificationLimitValue = ApplicationYamlRead.modificationLimitValue;
 
         System.out.println("modificationLimit : " + modificationLimitValue);
+
         assertThat(modificationLimitValue).isZero();
     }
-
 }

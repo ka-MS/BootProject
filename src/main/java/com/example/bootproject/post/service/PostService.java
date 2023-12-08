@@ -10,19 +10,27 @@ import com.example.bootproject.post.dto.PostRegistDTO;
 import com.example.bootproject.post.dto.PostUpdateDTO;
 import com.example.bootproject.post.mapper.PostMapper;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PostService {
 
-    @Autowired
-    private PostMapper postMapper;
+    private final PostMapper postMapper;
+
+    @Value("${constant-data.modifiable-date-value}")
+    private static int modifiableDateValue;
+    @Value("${constant-data.modification-limit-value}")
+    private static int modificationLimitValue;
 
     public List<Post> allPostList() {
         return postMapper.selectAllPosts();
@@ -57,7 +65,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailDTO insertPost(PostRegistDTO postRegistDTO) {
+    public PostDetailDTO savePost(PostRegistDTO postRegistDTO) {
         Post post = PostRegistDTO.toPost(postRegistDTO);
         postMapper.insertPost(post);
         PostDetailDTO postDetailDTO = getPost(post.getId());
@@ -69,10 +77,9 @@ public class PostService {
     public PostUpdateDTO updatePost(PostRegistDTO postRegistDTO, Long id) {
         PostDetailDTO postDetailDTO = getPost(id);
         Long modifiableDate = postDetailDTO.getModifiableDate();
-        int modifiableDateLimit = ApplicationYamlRead.getModificationLimitValue();
-        Post post = new Post(id, postRegistDTO.getTitle(), postRegistDTO.getContent());
+        Post post = PostRegistDTO.toPost(id, postRegistDTO);
 
-        if (modifiableDate <= modifiableDateLimit) {
+        if (modifiableDate <= modificationLimitValue) {
             throw new BadRequestException("Editing is overdue for post with id " + id);
         }
 
@@ -83,12 +90,23 @@ public class PostService {
 
     @Transactional
     public void deletePost(Long id) {
+        postMapper.deletePost(id);
+    }
+
+    @Transactional
+    public void softDeletePost(Long id) {
         Post post = getRawPost(id);
 
         if (post.getDeletedAt() == null) {
             postMapper.softDeletePost(id);
         } else {
-            postMapper.deletePost(id);
+            throw new BadRequestException("The post with id " + id + " has already been deleted");
         }
+    }
+
+    public static long getModifiableDate(LocalDateTime date) {
+        LocalDateTime nowDate = LocalDateTime.now();
+
+        return modifiableDateValue - ChronoUnit.DAYS.between(date, nowDate);
     }
 }

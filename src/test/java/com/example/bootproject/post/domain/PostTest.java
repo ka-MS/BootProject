@@ -2,6 +2,7 @@ package com.example.bootproject.post.domain;
 
 import com.example.bootproject.common.ApplicationYamlRead;
 import com.example.bootproject.post.dto.PostDetailDTO;
+import com.example.bootproject.post.service.PostService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -33,7 +34,7 @@ class PostTest {
         LocalDateTime date = LocalDateTime.of(2023,11,29,0,0);
         long compareDateValue = ApplicationYamlRead.getModifiableDateValue() - ChronoUnit.DAYS.between(date, now);
 
-        long modifiableDate = Post.getModifiableDate(date);
+        long modifiableDate = PostService.getModifiableDate(date);
 
         System.out.println("modifiableDate : " + modifiableDate);
         assertThat(modifiableDate).isEqualTo(compareDateValue);

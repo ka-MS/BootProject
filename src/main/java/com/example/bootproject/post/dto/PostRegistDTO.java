@@ -17,4 +17,12 @@ public class PostRegistDTO {
                 .content(postRegistDTO.getContent())
                 .build();
     }
+
+    public static Post toPost(Long id, PostRegistDTO postRegistDTO) {
+        return Post.builder()
+                .id(id)
+                .title(postRegistDTO.getTitle())
+                .content(postRegistDTO.getContent())
+                .build();
+    }
 }

@@ -3,7 +3,9 @@ package com.example.bootproject.post.domain;
 
 import com.example.bootproject.common.ApplicationYamlRead;
 import com.example.bootproject.post.dto.PostDetailDTO;
+import com.example.bootproject.post.service.PostService;
 import lombok.*;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -43,14 +45,7 @@ public class Post extends BaseEntity {
                 .content(post.getContent())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
-                .modifiableDate(getModifiableDate(post.getCreatedAt()))
+                .modifiableDate(PostService.getModifiableDate(post.getCreatedAt()))
                 .build();
-    }
-
-    public static long getModifiableDate(LocalDateTime date) {
-        LocalDateTime nowDate = LocalDateTime.now();
-        int modifiableDate = ApplicationYamlRead.getModifiableDateValue();
-
-        return modifiableDate - ChronoUnit.DAYS.between(date, nowDate);
     }
 }

@@ -21,17 +21,38 @@ class PostMapperTest {
     PostMapper postMapper;
 
     @Transactional
+    @DisplayName("getPost 게시글 get 테스트")
+    @Test
+    void getPost() {
+        //given
+        Post post = Post.builder()
+                .title("Test getPost")
+                .build();
+
+        postMapper.insertPost(post);
+
+        //when
+        Post postMapperPost = postMapper.getPost(post.getId());
+
+        //then
+        assertThat(postMapperPost.getTitle()).isEqualTo("Test getPost");
+    }
+
+    @Transactional
     @DisplayName("insertPost 게시글 작성 테스트")
     @Test
     void insertPost() {
+        //given
         Post post = Post.builder()
                 .title("Test insertPost")
                 .build();
 
         postMapper.insertPost(post);
 
+        //when
         Post postMapperPost = postMapper.getPost(post.getId());
 
+        //then
         assertThat(postMapperPost.getTitle()).isEqualTo("Test insertPost");
     }
 
@@ -39,6 +60,7 @@ class PostMapperTest {
     @DisplayName("selectAllPosts Post 모든 목록 조회")
     @Test
     void selectAllPosts() {
+        //given
         Post post = Post.builder()
                 .title("Test selectAllPosts")
                 .build();
@@ -47,8 +69,10 @@ class PostMapperTest {
         postMapper.insertPost(post);
         postMapper.insertPost(post);
 
+        //when
         List<Post> posts = postMapper.selectAllPosts();
 
+        //then
         assertThat(posts.size()).isNotZero();
     }
 
@@ -56,37 +80,51 @@ class PostMapperTest {
     @DisplayName("softDeletePost softDelete 테스트")
     @Test
     void softDeletePost() {
+        //given
         Post post = Post.builder()
                 .title("Test softDeletePost")
                 .build();
+
         postMapper.insertPost(post);
         Long id = post.getId();
 
-        postMapper.softDeletePost(id);
+        Post postMapperPost = postMapper.getPost(id);
 
-        assertThat(post.getCreatedAt()).isNotNull();
+        //when
+        postMapper.softDeletePost(postMapperPost.getId());
+
+        System.out.println(postMapperPost.getDeletedAt());
+        System.out.println(postMapperPost.getTitle());
+
+        //then
+        assertThat(postMapperPost.getDeletedAt()).isNull();
     }
 
     @Transactional
     @DisplayName("deletePost 게시글 삭제 테스트")
     @Test
     void deletePost() {
+        //given
         Post post = Post.builder()
                 .title("Test deletePost")
                 .build();
-        postMapper.insertPost(post);
-        Long id = post.getId();
-        postMapper.softDeletePost(id);
 
+        postMapper.insertPost(post);
+
+        Long id = post.getId();
+
+        //when
         postMapper.deletePost(id);
 
+        //then
         assertThat(postMapper.getPost(id)).isNull();
     }
 
     @Transactional
-    @DisplayName("deletePost 게시글 삭제 테스트")
+    @DisplayName("updatePost 게시글 업데이트 테스트")
     @Test
     void updatePost() {
+        //given
         Post post = Post.builder()
                 .title("Test updatePost")
                 .build();
@@ -97,9 +135,11 @@ class PostMapperTest {
                 .title("Title Updated")
                 .build();
 
+        //when
         postMapper.updatePost(changePost);
         Post postMapperPost = postMapper.getPost(id);
 
+        //then
         assertThat(postMapperPost.getTitle()).isEqualTo("Title Updated");
     }
 
@@ -107,19 +147,29 @@ class PostMapperTest {
     @DisplayName("selectPostsByKeywords 게시글 검색 테스트")
     @Test
     void selectPostsByKeywords() {
-        Post post = Post.builder()
+        //given
+        Post postOne = Post.builder()
                 .title("Test selectPostsByKeywords")
                 .build();
-        postMapper.insertPost(post);
-        postMapper.insertPost(post);
-        postMapper.insertPost(post);
-        postMapper.insertPost(post);
-        PostSearch postSearch = PostSearch.builder()
-                .title("Test selectPostsByKeywords")
+        Post postTwo = Post.builder()
+                .title("Test2 selectPostsByKeywords")
+                .build();
+        Post postThree = Post.builder()
+                .title("Test3 selectPostsByKeywords")
                 .build();
 
+        postMapper.insertPost(postOne);
+        postMapper.insertPost(postTwo);
+        postMapper.insertPost(postThree);
+
+        PostSearch postSearch = PostSearch.builder()
+                .title("selectPostsByKeywords")
+                .build();
+
+        //when
         List<Post> posts = postMapper.selectPostsByKeywords(postSearch);
 
-        assertThat(posts.size()).isNotZero();
+        //then
+        assertThat(posts.size()).isEqualTo(3);
     }
 }
