@@ -24,23 +24,17 @@ public class PostController {
 
     @GetMapping("/api/posts/all")
     public List<Post> allPosts() {
-        List<Post> posts = postService.allPostList();
-
-        return posts;
+        return postService.allPostList();
     }
 
     @GetMapping("/api/posts/{postId}")
     public PostDetailDTO getPost(@PathVariable("postId") Long id) {
-        PostDetailDTO postDetailDTO = postService.getPost(id);
-
-        return postDetailDTO;
+        return postService.getPost(id);
     }
 
     @GetMapping("/api/posts")
     public List<PostDetailDTO> searchPost(PostSearch search) {
-        List<PostDetailDTO> postDetails = postService.postListSearch(search);
-
-        return postDetails;
+        return postService.postListSearch(search);
     }
 
     @PostMapping("/api/posts")
@@ -52,9 +46,7 @@ public class PostController {
 
     @PutMapping("/api/posts/{postId}")
     public PostUpdateDTO updatePost(@PathVariable("postId") Long id, @RequestBody PostRegistDTO postRegistDTO) {
-        PostUpdateDTO postUpdate = postService.updatePost(postRegistDTO, id);
-
-        return postUpdate;
+        return postService.updatePost(postRegistDTO, id);
     }
 
     @DeleteMapping("/api/posts/{postId}")

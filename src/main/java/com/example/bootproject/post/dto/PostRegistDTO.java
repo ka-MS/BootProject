@@ -11,18 +11,18 @@ public class PostRegistDTO {
     private String title;
     private String content;
 
-    public static Post toPost(PostRegistDTO postRegistDTO) {
+    public Post toPost() {
         return Post.builder()
-                .title(postRegistDTO.getTitle())
-                .content(postRegistDTO.getContent())
+                .title(title)
+                .content(content)
                 .build();
     }
 
-    public static Post toPost(Long id, PostRegistDTO postRegistDTO) {
+    public Post toPost(Long postId) {
         return Post.builder()
-                .id(id)
-                .title(postRegistDTO.getTitle())
-                .content(postRegistDTO.getContent())
+                .id(postId)
+                .title(title)
+                .content(title)
                 .build();
     }
 }

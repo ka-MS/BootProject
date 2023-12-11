@@ -20,11 +20,9 @@ public class PostDetailDTO {
     private LocalDateTime updatedAt;
     private Long modifiableDate;
 
-    public static PostUpdateDTO toPostUpdateDTO(PostDetailDTO postDetailDTO) {
-        Long modifiableDate = postDetailDTO.getModifiableDate();
-
+    public PostUpdateDTO toPostUpdateDTO() {
         return PostUpdateDTO.builder()
-                .postDetailDTO(postDetailDTO)
+                .postDetailDTO(this)
                 .message(modifiableDate == 1 ? "No modifications can be made after one day" : modifiableDate + " days left")
                 .build();
     }

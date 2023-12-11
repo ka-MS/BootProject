@@ -30,7 +30,8 @@ public class PostService {
     @Value("${constant-data.modifiable-date-value}")
     private int modifiableDateValue;
     @Value("${constant-data.modification-limit-value}")
-    private static int modificationLimitValue;
+    private int modificationLimitValue;
+    private final LocalDateTime nowDate = LocalDateTime.now();
 
     public List<Post> allPostList() {
         return postMapper.selectAllPosts();
@@ -57,20 +58,25 @@ public class PostService {
             throw new BadRequestException("Post with id " + id + " is already deleted");
         }
 
-        return Post.toPostDetailDTO(post);
+        long modifiableDate = getModifiableDate(post.getCreatedAt());
+
+        return post.toPostDetailDTO(modifiableDate);
     }
 
     public List<PostDetailDTO> postListSearch(PostSearch postSearch) {
         List<Post> postList = postMapper.selectPostsByKeywords(postSearch);
-        List<PostDetailDTO> postDetailDTOList =
-                postList.stream().map(Post::toPostDetailDTO).collect(Collectors.toList());
 
-        return postDetailDTOList;
+        List<PostDetailDTO> postDetails=
+                postList.stream()
+                        .map(post -> post.toPostDetailDTO(getModifiableDate(post.getCreatedAt())))
+                        .collect(Collectors.toList());
+
+        return postDetails;
     }
 
     @Transactional
     public PostDetailDTO savePost(PostRegistDTO postRegistDTO) {
-        Post post = PostRegistDTO.toPost(postRegistDTO);
+        Post post = postRegistDTO.toPost();
         postMapper.insertPost(post);
         PostDetailDTO postDetailDTO = getPost(post.getId());
 
@@ -81,9 +87,9 @@ public class PostService {
     public PostUpdateDTO updatePost(PostRegistDTO postRegistDTO, Long id) {
         PostDetailDTO postDetailCheck = getPost(id);
         Long modifiableDate = postDetailCheck.getModifiableDate();
-        Post post = PostRegistDTO.toPost(id, postRegistDTO);
+        Post post = postRegistDTO.toPost(id);
 
-        if (modifiableDate <= ApplicationYamlRead.getModificationLimitValue()) {
+        if (modifiableDate <= modificationLimitValue) {
             throw new BadRequestException("Editing is overdue for post with id " + id);
         }
 
@@ -91,7 +97,7 @@ public class PostService {
 
         PostDetailDTO postDetail = getPost(id);
 
-        return PostDetailDTO.toPostUpdateDTO(postDetail);
+        return postDetail.toPostUpdateDTO();
     }
 
     @Transactional
@@ -112,11 +118,7 @@ public class PostService {
         }
     }
 
-    public static long getModifiableDate(LocalDateTime date) {
-        LocalDateTime nowDate = LocalDateTime.now();
-
-        long result = ApplicationYamlRead.getModifiableDateValue() - ChronoUnit.DAYS.between(date, nowDate);
-
-        return result;
+    public long getModifiableDate(LocalDateTime date) {
+        return modifiableDateValue - ChronoUnit.DAYS.between(date, nowDate);
     }
 }
