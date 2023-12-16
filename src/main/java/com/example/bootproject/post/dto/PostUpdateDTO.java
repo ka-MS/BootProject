@@ -1,6 +1,5 @@
 package com.example.bootproject.post.dto;
 
-import com.example.bootproject.post.domain.Post;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

@@ -136,7 +136,7 @@ class PostControllerTest {
         Gson gson = new Gson();
         String content = gson.toJson(rPost);
 
-        given(postService.insertPost(any(PostRegistDTO.class))).willReturn(post);
+        given(postService.savePost(any(PostRegistDTO.class))).willReturn(post);
 
         // then
         mockMvc.perform(post("/api/posts")

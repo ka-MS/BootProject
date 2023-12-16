@@ -19,8 +19,11 @@
         SELECT * FROM post
         WHERE title like CONCAT('%', #{title}, '%') OR title IS NULL
         <choose>
-            <when test='sortOrder.name() == "ASC"'>
+            <when test='sortOrder != null and sortOrder.name() == "ASC"'>
                 ORDER BY created_at ASC
+            </when>
+            <when test='sortOrder != null and sortOrder.name() == "DESC"'>
+                ORDER BY created_at DESC
             </when>
             <otherwise>
                 ORDER BY created_at DESC
@@ -48,7 +51,7 @@
     </update>
 
     <delete id="deletePost" >
-        DELETE FROM post WHERE id = ${id}content
+        DELETE FROM post WHERE id = #{id}
     </delete>
 
 </mapper>

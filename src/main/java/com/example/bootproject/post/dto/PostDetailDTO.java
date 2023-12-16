@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+
 @Builder
 @Getter
 @Setter
@@ -18,4 +19,11 @@ public class PostDetailDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long modifiableDate;
+
+    public PostUpdateDTO toPostUpdateDTO() {
+        return PostUpdateDTO.builder()
+                .postDetailDTO(this)
+                .message(modifiableDate == 1 ? "No modifications can be made after one day" : modifiableDate + " days left")
+                .build();
+    }
 }
