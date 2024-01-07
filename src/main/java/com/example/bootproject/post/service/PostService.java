@@ -1,6 +1,5 @@
 package com.example.bootproject.post.service;
 
-import com.example.bootproject.common.ApplicationYamlRead;
 import com.example.bootproject.exception.BadRequestException;
 import com.example.bootproject.exception.NotFoundException;
 import com.example.bootproject.post.domain.Post;
@@ -9,9 +8,7 @@ import com.example.bootproject.post.dto.PostDetailDTO;
 import com.example.bootproject.post.dto.PostRegistDTO;
 import com.example.bootproject.post.dto.PostUpdateDTO;
 import com.example.bootproject.post.mapper.PostMapper;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,12 +23,13 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostMapper postMapper;
+    private final LocalDateTime nowDate = LocalDateTime.now();
 
     @Value("${constant-data.modifiable-date-value}")
     private int modifiableDateValue;
+
     @Value("${constant-data.modification-limit-value}")
     private int modificationLimitValue;
-    private final LocalDateTime nowDate = LocalDateTime.now();
 
     public List<Post> allPostList() {
         return postMapper.selectAllPosts();

@@ -22,24 +22,31 @@ repositories {
 }
 
 dependencies {
-
+    // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.springframework:spring-jdbc")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-    compileOnly("org.projectlombok:lombok")
+    // JSON
     implementation("com.google.code.gson:gson")
-    annotationProcessor("org.projectlombok:lombok")
-    implementation("org.springframework:spring-jdbc")
-    implementation ("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation ("org.springframework.boot:spring-boot-starter-jdbc")
-//    implementation ("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
-    runtimeOnly ("com.microsoft.sqlserver:mssql-jdbc")
-    runtimeOnly("mysql:mysql-connector-java")
-    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2")
 
+    // Swagger
     implementation("io.springfox:springfox-boot-starter:3.0.0")
     implementation("io.springfox:springfox-swagger-ui:3.0.0")
+
+    // MyBatis
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2")
+
+    // Lombok
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+
+    // Database
+    runtimeOnly("com.microsoft.sqlserver:mssql-jdbc")
+    runtimeOnly("mysql:mysql-connector-java")
 }
 
 tasks.withType<Test> {

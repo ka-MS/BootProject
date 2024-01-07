@@ -24,17 +24,17 @@ class PostMapperTest {
     @DisplayName("getPost 게시글 get 테스트")
     @Test
     void getPost() {
-        //given
+        // given
         Post post = Post.builder()
                 .title("Test getPost")
                 .build();
 
         postMapper.insertPost(post);
 
-        //when
+        // when
         Post postMapperPost = postMapper.getPost(post.getId());
 
-        //then
+        // then
         assertThat(postMapperPost.getTitle()).isEqualTo("Test getPost");
     }
 
@@ -42,17 +42,17 @@ class PostMapperTest {
     @DisplayName("insertPost 게시글 작성 테스트")
     @Test
     void insertPost() {
-        //given
+        // given
         Post post = Post.builder()
                 .title("Test insertPost")
                 .build();
 
         postMapper.insertPost(post);
 
-        //when
+        // when
         Post postMapperPost = postMapper.getPost(post.getId());
 
-        //then
+        // then
         assertThat(postMapperPost.getTitle()).isEqualTo("Test insertPost");
     }
 
@@ -60,7 +60,7 @@ class PostMapperTest {
     @DisplayName("selectAllPosts Post 모든 목록 조회")
     @Test
     void selectAllPosts() {
-        //given
+        // given
         Post post = Post.builder()
                 .title("Test selectAllPosts")
                 .build();
@@ -69,10 +69,10 @@ class PostMapperTest {
         postMapper.insertPost(post);
         postMapper.insertPost(post);
 
-        //when
+        // when
         List<Post> posts = postMapper.selectAllPosts();
 
-        //then
+        // then
         assertThat(posts.size()).isNotZero();
     }
 
@@ -80,7 +80,7 @@ class PostMapperTest {
     @DisplayName("softDeletePost softDelete 테스트")
     @Test
     void softDeletePost() {
-        //given
+        // given
         Post post = Post.builder()
                 .title("Test softDeletePost")
                 .build();
@@ -90,13 +90,13 @@ class PostMapperTest {
 
         Post postMapperPost = postMapper.getPost(id);
 
-        //when
+        // when
         postMapper.softDeletePost(postMapperPost.getId());
 
         System.out.println(postMapperPost.getDeletedAt());
         System.out.println(postMapperPost.getTitle());
 
-        //then
+        // then
         assertThat(postMapperPost.getDeletedAt()).isNull();
     }
 
@@ -104,7 +104,7 @@ class PostMapperTest {
     @DisplayName("deletePost 게시글 삭제 테스트")
     @Test
     void deletePost() {
-        //given
+        // given
         Post post = Post.builder()
                 .title("Test deletePost")
                 .build();
@@ -113,10 +113,10 @@ class PostMapperTest {
 
         Long id = post.getId();
 
-        //when
+        // when
         postMapper.deletePost(id);
 
-        //then
+        // then
         assertThat(postMapper.getPost(id)).isNull();
     }
 
@@ -124,7 +124,7 @@ class PostMapperTest {
     @DisplayName("updatePost 게시글 업데이트 테스트")
     @Test
     void updatePost() {
-        //given
+        // given
         Post post = Post.builder()
                 .title("Test updatePost")
                 .build();
@@ -135,11 +135,11 @@ class PostMapperTest {
                 .title("Title Updated")
                 .build();
 
-        //when
+        // when
         postMapper.updatePost(changePost);
         Post postMapperPost = postMapper.getPost(id);
 
-        //then
+        // then
         assertThat(postMapperPost.getTitle()).isEqualTo("Title Updated");
     }
 
@@ -147,7 +147,7 @@ class PostMapperTest {
     @DisplayName("selectPostsByKeywords 게시글 검색 테스트")
     @Test
     void selectPostsByKeywords() {
-        //given
+        // given
         Post postOne = Post.builder()
                 .title("Test selectPostsByKeywords")
                 .build();
@@ -166,10 +166,10 @@ class PostMapperTest {
                 .title("selectPostsByKeywords")
                 .build();
 
-        //when
+        // when
         List<Post> posts = postMapper.selectPostsByKeywords(postSearch);
 
-        //then
+        // then
         assertThat(posts.size()).isEqualTo(3);
     }
 }

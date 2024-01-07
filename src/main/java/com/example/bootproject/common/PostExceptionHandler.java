@@ -11,7 +11,7 @@ public class PostExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<String> illegalStateExceptionHandle(IllegalStateException e){
-        log.error("Illegalstateexception",e);
+        log.error("IllegalstateException",e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 

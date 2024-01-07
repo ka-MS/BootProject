@@ -1,6 +1,6 @@
 package com.example.bootproject.post.controller;
 
-import com.example.bootproject.enums.DeleteType;
+import com.example.bootproject.post.enums.DeleteType;
 import com.example.bootproject.post.domain.Post;
 import com.example.bootproject.post.domain.PostSearch;
 import com.example.bootproject.post.dto.PostDetailDTO;
@@ -8,15 +8,15 @@ import com.example.bootproject.post.dto.PostRegistDTO;
 import com.example.bootproject.post.dto.PostUpdateDTO;
 import com.example.bootproject.post.service.PostService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
-//초기화 되지 않은 final 필드나, @NonNull 이 붙은 필드에 대해 생성자를 생성해 준다(생성자 주입)
+// Creates a constructor for uninitialized final fields or fields marked with @NonNull (constructor injection).
 @RequiredArgsConstructor
 public class PostController {
 
@@ -28,7 +28,7 @@ public class PostController {
     }
 
     @GetMapping("/api/posts/{postId}")
-    public PostDetailDTO getPost(@PathVariable("postId") Long id) {
+    public PostDetailDTO getPost(@PathVariable("postId")@NotNull Long id) {
         return postService.getPost(id);
     }
 
