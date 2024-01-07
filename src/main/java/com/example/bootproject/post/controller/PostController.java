@@ -34,7 +34,7 @@ public class PostController {
     @ApiResponse(responseCode = "200", description = "Post view successful")
     @ApiResponse(responseCode = "404", description = "Post not found")
     @GetMapping("/api/posts/{postId}")
-    public PostDetailDTO getPost(@PathVariable("postId") @NotNull Long id) {
+    public PostDetailDTO getPost(@PathVariable("postId") Long id) {
         return postService.getPost(id);
     }
 
@@ -54,13 +54,13 @@ public class PostController {
 
     @Operation(summary = "Update post", description = "Edit the content of a specific post.", tags = {"posts"})
     @PutMapping("/api/posts/{postId}")
-    public PostUpdateDTO updatePost(@PathVariable("postId") @NotNull Long id, @RequestBody PostRegistDTO postRegistDTO) {
+    public PostUpdateDTO updatePost(@PathVariable("postId") Long id, @RequestBody PostRegistDTO postRegistDTO) {
         return postService.updatePost(postRegistDTO, id);
     }
 
     @Operation(summary = "Delete post", description = "Delete a specific post.", tags = {"posts"})
     @DeleteMapping("/api/posts/{postId}")
-    public void deletePost(@PathVariable("postId") @NotNull Long id, @RequestParam("deleteType") DeleteType deleteType) {
+    public void deletePost(@PathVariable("postId") Long id, @RequestParam("deleteType") DeleteType deleteType) {
         if (deleteType.equals(DeleteType.HARD)){
             postService.deletePost(id);
         } else {
