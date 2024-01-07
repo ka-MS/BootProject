@@ -37,13 +37,13 @@ class PostControllerTest {
     @Autowired
     MockMvc mockMvc;
 
-    // object를 json으로 json을 object로
+    // Object to json and json to Object
     private ObjectMapper mapper = new ObjectMapper();
 
     @MockBean
     PostService postService;
 
-    // api가 제대로된 response를 발송 하는지 확인
+    // Check whether the API sends the correct response
     @Test
     @DisplayName("allPosts 모든 게시글 조회 테스트")
     void allPosts() throws Exception {
@@ -60,9 +60,9 @@ class PostControllerTest {
 
         given(postService.allPostList()).willReturn(posts);
 
-        //when
+        // when
         mockMvc.perform(get("/api/posts/all"))
-                //then
+                // then
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].title").value("all posts test"))
@@ -77,7 +77,6 @@ class PostControllerTest {
                 .id(1L)
                 .title("all posts test")
                 .build();
-
 
         // when
         given(postService.getPost(post.getId())).willReturn(post);
@@ -107,10 +106,10 @@ class PostControllerTest {
                 .createdAt(LocalDateTime.of(2023,11,28,0,0))
                 .build());
 
-        // search객체의 값과 param의 값이 동일해야 정상적으로 진행됨
+        // The search object value and the param value must be the same to proceed normally.
         given(postService.postListSearch(any(PostSearch.class))).willReturn(posts);
 
-        // when
+        // when then
         mockMvc.perform(get("/api/posts")
                 .param("title","test"))
                 .andExpect(status().isOk())
@@ -136,6 +135,7 @@ class PostControllerTest {
         Gson gson = new Gson();
         String content = gson.toJson(rPost);
 
+        // when
         given(postService.savePost(any(PostRegistDTO.class))).willReturn(post);
 
         // then
@@ -147,17 +147,5 @@ class PostControllerTest {
                 .andExpect(jsonPath("title").value("all posts test"))
                 .andExpect(jsonPath("id").value(1))
                 .andDo(print());
-    }
-
-    @Test
-    void updatePost() {
-    }
-
-    @Test
-    void softDeletePost() {
-    }
-
-    @Test
-    void deletePost() {
     }
 }

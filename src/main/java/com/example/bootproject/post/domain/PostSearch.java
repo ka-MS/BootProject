@@ -1,6 +1,6 @@
 package com.example.bootproject.post.domain;
 
-import com.example.bootproject.enums.SortOrder;
+import com.example.bootproject.post.enums.SortOrder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

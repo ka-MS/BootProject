@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 @MapperScan(value = "com.example.bootproject", sqlSessionFactoryRef = "SqlSessionFactory")
 public class MyBatisConfig {
     @Value("${mybatis.mapper-locations}")
-    String mPath;
+    private String mPath;
 
     @Bean
     public MybatisInterceptor mybatisInterceptor() {
@@ -33,12 +33,10 @@ public class MyBatisConfig {
         return DataSourceBuilder.create().build();
     }
 
-
     @Bean(name = "SqlSessionFactory")
-    public SqlSessionFactory SqlSessionFactory(@Qualifier("dataSource") DataSource DataSource
-            , ApplicationContext applicationContext
-            , MybatisInterceptor mybatisInterceptor) throws Exception {
+    public SqlSessionFactory SqlSessionFactory(@Qualifier("dataSource") DataSource DataSource, ApplicationContext applicationContext, MybatisInterceptor mybatisInterceptor) throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+
         sqlSessionFactoryBean.setDataSource(DataSource);
         sqlSessionFactoryBean.setMapperLocations(applicationContext.getResources(mPath));
         sqlSessionFactoryBean.setPlugins(new Interceptor[]{mybatisInterceptor});
@@ -50,8 +48,4 @@ public class MyBatisConfig {
     public SqlSessionTemplate SqlSessionTemplate(@Qualifier("SqlSessionFactory") SqlSessionFactory firstSqlSessionFactory) {
         return new SqlSessionTemplate(firstSqlSessionFactory);
     }
-
-
-
-
 }
