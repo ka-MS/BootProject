@@ -36,10 +36,6 @@ public class PostService {
     }
 
     public Post getRawPost(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("ID cannot be null");
-        }
-
         Post post = postMapper.getPost(id);
 
         if (post == null) {
