@@ -1,6 +1,6 @@
 package com.example.bootproject.common;
 
-import com.example.bootproject.post.domain.BaseEntity;
+import com.example.bootproject.domain.BaseEntity;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.Interceptor;

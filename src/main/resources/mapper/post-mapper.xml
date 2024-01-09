@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace= "com.example.bootproject.post.mapper.PostMapper">
-    <resultMap  type="com.example.bootproject.post.domain.Post"  id="PostResultMap">
+<mapper namespace= "com.example.bootproject.mapper.post.mapper.PostMapper">
+    <resultMap type="com.example.bootproject.domain.post.Post" id="PostResultMap">
         <id property="id" column="id" />
         <result property="title" column="title" />
         <result property="content" column="content" />
