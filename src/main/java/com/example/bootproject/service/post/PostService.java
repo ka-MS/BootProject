@@ -31,22 +31,25 @@ public class PostService {
     @Value("${constant-data.modification-limit-value}")
     private int modificationLimitValue;
 
+    @Transactional(readOnly = true)
     public List<Post> allPostList() {
         return postMapper.selectAllPosts();
     }
 
+    @Transactional(readOnly = true)
     public Post getRawPost(Long id) {
         Post post = postMapper.getPost(id);
 
-        if (post == null) {
-            throw new NotFoundException("There is no post with id: " + id);
-        }
+        validatePostExistence(post, id);
 
         return post;
     }
 
+    @Transactional(readOnly = true)
     public PostDetailDTO getPost(Long id) {
-        Post post = getRawPost(id);
+        Post post = postMapper.getPost(id);
+
+        validatePostExistence(post, id);
 
         if (post.getDeletedAt() != null) {
             throw new BadRequestException("Post with id " + id + " is already deleted");
@@ -57,6 +60,7 @@ public class PostService {
         return post.toPostDetailDTO(modifiableDate);
     }
 
+    @Transactional(readOnly = true)
     public List<PostDetailDTO> postListSearch(PostSearch postSearch) {
         List<Post> postList = postMapper.selectPostsByKeywords(postSearch);
 
@@ -96,19 +100,29 @@ public class PostService {
 
     @Transactional
     public void deletePost(Long id) {
-        getRawPost(id); // 게시글 유무 체크
+        Post post = postMapper.getPost(id);
+
+        validatePostExistence(post, id);
 
         postMapper.deletePost(id);
     }
 
     @Transactional
     public void softDeletePost(Long id) {
-        Post post = getRawPost(id);
+        Post post = postMapper.getPost(id);
+
+        validatePostExistence(post, id);
 
         if (post.getDeletedAt() == null) {
             postMapper.softDeletePost(id);
         } else {
             throw new BadRequestException("The post with id " + id + " has already been deleted");
+        }
+    }
+
+    public void validatePostExistence(Post post, Long id) {
+        if (post == null) {
+            throw new NotFoundException("There is no post with id: " + id);
         }
     }
 

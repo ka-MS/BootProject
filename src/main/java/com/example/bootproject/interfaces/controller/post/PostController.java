@@ -35,6 +35,8 @@ public class PostController {
     @ApiResponse(responseCode = "404", description = "Post not found")
     @GetMapping("/api/posts/{postId}")
     public PostDetailDTO getPost(@PathVariable("postId") Long id) {
+        validatePostId(id);
+
         return postService.getPost(id);
     }
 
@@ -49,22 +51,33 @@ public class PostController {
     @PostMapping("/api/posts")
     public ResponseEntity<PostDetailDTO> insertPost(@RequestBody PostRegistDTO post) {
         PostDetailDTO postDetail = postService.savePost(post);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(postDetail);
     }
 
     @Operation(summary = "Update post", description = "Edit the content of a specific post.", tags = {"posts"})
     @PutMapping("/api/posts/{postId}")
     public PostUpdateDTO updatePost(@PathVariable("postId") Long id, @RequestBody PostRegistDTO postRegistDTO) {
+        validatePostId(id);
+
         return postService.updatePost(postRegistDTO, id);
     }
 
     @Operation(summary = "Delete post", description = "Delete a specific post.", tags = {"posts"})
     @DeleteMapping("/api/posts/{postId}")
     public void deletePost(@PathVariable("postId") Long id, @RequestParam("deleteType") DeleteType deleteType) {
+        validatePostId(id);
+
         if (deleteType.equals(DeleteType.HARD)){
             postService.deletePost(id);
         } else {
             postService.softDeletePost(id);
+        }
+    }
+
+    private void validatePostId(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
         }
     }
 }
