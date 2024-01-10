@@ -34,8 +34,7 @@ dependencies {
     implementation("com.google.code.gson:gson")
 
     // Swagger
-    implementation("io.springfox:springfox-boot-starter:3.0.0")
-    implementation("io.springfox:springfox-swagger-ui:3.0.0")
+    implementation("org.springdoc:springdoc-openapi-ui:1.7.0")
 
     // MyBatis
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2")

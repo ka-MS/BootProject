@@ -1,31 +1,31 @@
 package com.example.bootproject.common;
 
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
 
 @Configuration
 public class SwaggerConfig {
 
+    /*
+    * Docket -> OpenAPI 로 변경
+    * @ApiResponse 의 일부 설정과 @ExampleObject 설정이 적용 되지 않았음
+    * Springfox가 OpenAPI 2.0(Swagger 2) 사양을 기반 으로 하기 때문에 기능이 제한적 일 수 있다 하여
+    * springfox-swagger-ui 에서 springdoc-openapi-ui로 변경
+     */
     @Bean
-    public Docket api(){
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
-                .build()
-                .apiInfo(apiInfo());
+    public OpenAPI api(){
+        return new OpenAPI()
+                .components(new Components())
+                .info(apiInfo());
     }
 
-    private ApiInfo apiInfo(){
-        return new ApiInfoBuilder()
+    private Info apiInfo(){
+        return new Info()
                 .title("BootProject Swagger")
-                .description("BootProject Rest API Documentation")
-                .build();
+                .version(("beta"))
+                .description("BootProject Rest API Documentation");
     }
 }

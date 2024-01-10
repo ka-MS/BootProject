@@ -3,15 +3,26 @@ package com.example.bootproject.domain.post;
 
 import com.example.bootproject.domain.BaseEntity;
 import com.example.bootproject.interfaces.dto.post.PostDetailDTO;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Pattern;
+
+@Schema(description = "Post 엔티티")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class Post extends BaseEntity {
 
+    @Schema(description = "게시글 ID")
     private Long id;
+    @Length(min = 1, max = 200)
+    @Schema(description = "게시글 제목", nullable = true, type = "String")
     private String title;
+    @Pattern(regexp = "^.{0,1000}$")
+    @Schema(description = "게시글 내용", nullable = true, example = "This Post Content")
     private String content;
 
     @Builder
