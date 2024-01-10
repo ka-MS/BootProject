@@ -13,10 +13,10 @@ import javax.validation.constraints.Pattern;
 @Builder
 public class PostRegistDTO {
 
-    @Length(min = 1, max = 200)
+    @Length(min = 1, max = 200, message = "Title must be up to 200 characters.")
     @Schema(description = "게시글 제목")
     private String title;
-    @Pattern(regexp = "^.{0,1000}$")
+    @Pattern(regexp = "^.{0,1000}$", message = "Content must be up to 1000 characters.")
     @Schema(description = "게시글 내용")
     private String content;
 

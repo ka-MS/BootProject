@@ -41,21 +41,20 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "Post view successful", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PostDetailDTO.class),
                     examples = @ExampleObject(name = "Get Post",
                             value = "{\n" +
-                            "  \"id\": 1,\n" +
-                            "  \"title\": \"Post Title\",\n" +
-                            "  \"content\": \"Post Contents....\",\n" +
-                            "  \"createdAt\": \"2023-11-29T23:37:16\",\n" +
-                            "  \"updatedAt\": \"2023-11-29T23:37:16\",\n" +
-                            "  \"modifiableDate\": 10\n" +
-                            "}"))),
+                                    "  \"id\": 1,\n" +
+                                    "  \"title\": \"Post Title\",\n" +
+                                    "  \"content\": \"Post Contents....\",\n" +
+                                    "  \"createdAt\": \"2023-11-29T23:37:16\",\n" +
+                                    "  \"updatedAt\": \"2023-11-29T23:37:16\",\n" +
+                                    "  \"modifiableDate\": 10\n" +
+                                    "}"))),
             @ApiResponse(responseCode = "404", description = "Post not found", content = @Content(mediaType = "application/json",
                     examples = @ExampleObject(name = "Not Found",
                             value = "{\n" +
-                            "  \"timestamp\": \"2024-01-10T02:17:58.323+00:00\",\n" +
-                            "  \"status\": 404,\n" +
-                            "  \"error\": \"Not Found\",\n" +
-                            "  \"path\": \"/api/posts/234523452345\"\n" +
-                            "}")))})
+                                    "  \"timestamp\": \"2024-01-10T02:17:58.323+00:00\",\n" +
+                                    "  \"message\": \"There is no post with id: 10145\",\n" +
+                                    "  \"status\": \"404\"\n" +
+                                    "}")))})
     @GetMapping("/api/posts/{postId}")
     public PostDetailDTO getPost(@PathVariable("postId") Long id) {
         validatePostId(id);
@@ -89,7 +88,7 @@ public class PostController {
 
     @Operation(summary = "Update post", description = "Edit the content of a specific post.", tags = {"posts"})
     @PutMapping("/api/posts/{postId}")
-    public PostUpdateDTO updatePost(@PathVariable("postId") Long id, @RequestBody PostRegistDTO postRegistDTO) {
+    public PostUpdateDTO updatePost(@PathVariable("postId") Long id, @Valid @RequestBody PostRegistDTO postRegistDTO) {
         validatePostId(id);
 
         return postService.updatePost(postRegistDTO, id);
@@ -101,16 +100,21 @@ public class PostController {
             content = @Content(mediaType = "application/json",
                     examples = {@ExampleObject(name = "Not Found",
                             value = "{\n" +
-                            "  \"timestamp\": \"2024-01-10T02:17:58.323+00:00\",\n" +
-                            "  \"status\": 404,\n" +
-                            "  \"error\": \"Not Found\",\n" +
-                            "  \"path\": \"/api/posts/234523452345\"\n" +
-                            "}")
-            }))
+                                    "  \"timestamp\": \"2024-01-10T02:17:58.323+00:00\",\n" +
+                                    "  \"message\": \"There is no post with id: 10145\",\n" +
+                                    "  \"status\": \"404\"\n" +
+                                    "}"),
+                            @ExampleObject(name = "BadRequest",
+                                    value = "{\n" +
+                                            "  \"timestamp\": \"2024-01-10T02:17:58.323+00:00\",\n" +
+                                            "  \"message\": \"The post with id 10 has already been deleted\",\n" +
+                                            "  \"status\": \"400\"\n" +
+                                            "}")
+                    }))
     public void deletePost(@PathVariable("postId") Long id, @RequestParam("deleteType") DeleteType deleteType) {
         validatePostId(id);
 
-        if (deleteType.equals(DeleteType.HARD)){
+        if (deleteType.equals(DeleteType.HARD)) {
             postService.deletePost(id);
         } else {
             postService.softDeletePost(id);
