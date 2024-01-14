@@ -20,6 +20,7 @@ public class PostRegistDTO {
     @Schema(description = "게시글 내용")
     private String content;
 
+    // Save Post
     public Post toPost() {
         return Post.builder()
                 .title(title)
@@ -27,11 +28,12 @@ public class PostRegistDTO {
                 .build();
     }
 
-    public Post toPost(Long postId) {
+    // Update Post with Uuid
+    public Post toPost(String uuid) {
         return Post.builder()
-                .id(postId)
+                .uuid(uuid)
                 .title(title)
-                .content(title)
+                .content(content)
                 .build();
     }
 }

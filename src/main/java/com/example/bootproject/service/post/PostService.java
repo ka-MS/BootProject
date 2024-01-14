@@ -1,5 +1,6 @@
 package com.example.bootproject.service.post;
 
+import com.example.bootproject.domain.BaseEntity;
 import com.example.bootproject.exception.BadRequestException;
 import com.example.bootproject.exception.NotFoundException;
 import com.example.bootproject.domain.post.Post;
@@ -9,6 +10,7 @@ import com.example.bootproject.interfaces.dto.post.PostRegistDTO;
 import com.example.bootproject.interfaces.dto.post.PostUpdateDTO;
 import com.example.bootproject.mapper.post.mapper.PostMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -38,24 +41,24 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Post getRawPost(Long id) {
-        Post post = postMapper.getPost(id);
+        Post post = postMapper.getPostById(id);
 
-        validatePostExistence(post, id);
+        validatePostExistence(post, post.getUuid());
 
         return post;
     }
 
     @Transactional(readOnly = true)
-    public PostDetailDTO getPost(Long id) {
-        Post post = postMapper.getPost(id);
+    public PostDetailDTO getPost(String uuid) {
+        Post post = postMapper.getPostByUUID(uuid);
 
-        validatePostExistence(post, id);
+        validatePostExistence(post, uuid);
 
         if (post.getDeletedAt() != null) {
-            throw new BadRequestException("Post with id " + id + " is already deleted");
+            throw new BadRequestException("Post with id " + uuid + " is already deleted");
         }
 
-        long modifiableDate = getModifiableDate(post.getCreatedAt());
+        Long modifiableDate = getModifiableDate(post.getCreatedAt());
 
         return post.toPostDetailDTO(modifiableDate);
     }
@@ -76,57 +79,63 @@ public class PostService {
     public PostDetailDTO savePost(PostRegistDTO postRegistDTO) {
         Post post = postRegistDTO.toPost();
         postMapper.insertPost(post);
-        PostDetailDTO postDetailDTO = getPost(post.getId());
+        PostDetailDTO postDetailDTO = getPost(post.getUuid());
 
         return postDetailDTO;
     }
 
     @Transactional
-    public PostUpdateDTO updatePost(PostRegistDTO postRegistDTO, Long id) {
-        PostDetailDTO postDetailCheck = getPost(id);
+    public PostUpdateDTO updatePost(PostRegistDTO postRegistDTO, String uuid) {
+        PostDetailDTO postDetailCheck = getPost(uuid);
         Long modifiableDate = postDetailCheck.getModifiableDate();
-        Post post = postRegistDTO.toPost(id);
+        Post post = postRegistDTO.toPost(uuid);
+
 
         if (modifiableDate <= modificationLimitValue) {
-            throw new BadRequestException("Editing is overdue for post with id " + id);
+            throw new BadRequestException("Editing is overdue for post with id " + uuid);
         }
 
         postMapper.updatePost(post);
 
-        PostDetailDTO postDetail = getPost(id);
+        PostDetailDTO postDetail = getPost(uuid);
 
         return postDetail.toPostUpdateDTO();
     }
 
     @Transactional
-    public void deletePost(Long id) {
-        Post post = postMapper.getPost(id);
+    public void deletePost(String uuid) {
+        Post post = postMapper.getPostByUUID(uuid);
 
-        validatePostExistence(post, id);
+        validatePostExistence(post, uuid);
 
-        postMapper.deletePost(id);
+        postMapper.deletePost(uuid);
     }
 
     @Transactional
-    public void softDeletePost(Long id) {
-        Post post = postMapper.getPost(id);
+    public void softDeletePost(String uuid) {
+        Post post = postMapper.getPostByUUID(uuid);
 
-        validatePostExistence(post, id);
+        validatePostExistence(post, uuid);
 
         if (post.getDeletedAt() == null) {
-            postMapper.softDeletePost(id);
+            postMapper.softDeletePost(uuid);
         } else {
-            throw new BadRequestException("The post with id " + id + " has already been deleted");
+            throw new BadRequestException("The post with id " + uuid + " has already been deleted");
         }
     }
 
-    public void validatePostExistence(Post post, Long id) {
-        if (post == null) {
-            throw new NotFoundException("There is no post with id: " + id);
+    public void validatePostExistence(Post post, String uuid) {
+        if ( uuid == null ||post == null) {
+            throw new NotFoundException("There is no post with id: " + uuid);
         }
     }
 
-    public long getModifiableDate(LocalDateTime date) {
-        return modifiableDateValue - ChronoUnit.DAYS.between(date, nowDate);
+    public Long getModifiableDate(LocalDateTime date) {
+        try {
+            return modifiableDateValue - ChronoUnit.DAYS.between(date, nowDate);
+        } catch (NullPointerException e) {
+            log.warn("Creation Time is null",e);
+            return null;
+        }
     }
 }

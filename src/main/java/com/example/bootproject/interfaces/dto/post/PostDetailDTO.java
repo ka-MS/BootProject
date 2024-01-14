@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Schema(description = "게시글 상세 정보")
 @Builder
@@ -17,6 +18,8 @@ public class PostDetailDTO {
 
     @Schema(description = "게시글 ID")
     private Long id;
+    @Schema(description = "게시글 UUID")
+    private String uuid;
     @Schema(description = "게시글 제목")
     private String title;
     @Schema(description = "게시글 내용")

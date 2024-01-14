@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 @Tag(name = "posts", description = "Post API")
 @RestController
@@ -42,6 +43,7 @@ public class PostController {
                     examples = @ExampleObject(name = "Get Post",
                             value = "{\n" +
                                     "  \"id\": 1,\n" +
+                                    "  \"uuid\": \"4e60e67c-af80-11ee-a127-00155dddd5ce\",\n" +
                                     "  \"title\": \"Post Title\",\n" +
                                     "  \"content\": \"Post Contents....\",\n" +
                                     "  \"createdAt\": \"2023-11-29T23:37:16\",\n" +
@@ -53,10 +55,10 @@ public class PostController {
                             value = "{\n" +
                                     "  \"timestamp\": \"2024-01-10T02:17:58.323+00:00\",\n" +
                                     "  \"message\": \"There is no post with id: 10145\",\n" +
-                                    "  \"status\": \"404\"\n" +
+                                    "  \"status\": 404\n" +
                                     "}")))})
     @GetMapping("/api/posts/{postId}")
-    public PostDetailDTO getPost(@PathVariable("postId") Long id) {
+    public PostDetailDTO getPost(@PathVariable("postId") String id) {
         validatePostId(id);
 
         return postService.getPost(id);
@@ -73,6 +75,7 @@ public class PostController {
             examples = @ExampleObject(name = "Create",
                     value = "{\n" +
                             "  \"id\": 1,\n" +
+                            "  \"uuid\": \"4e60e67c-af80-11ee-a127-00155dddd5ce\",\n" +
                             "  \"title\": \"Post Title\",\n" +
                             "  \"content\": \"Post Contents....\",\n" +
                             "  \"createdAt\": \"2023-11-29T23:37:16\",\n" +
@@ -88,7 +91,7 @@ public class PostController {
 
     @Operation(summary = "Update post", description = "Edit the content of a specific post.", tags = {"posts"})
     @PutMapping("/api/posts/{postId}")
-    public PostUpdateDTO updatePost(@PathVariable("postId") Long id, @Valid @RequestBody PostRegistDTO postRegistDTO) {
+    public PostUpdateDTO updatePost(@PathVariable("postId") String id, @Valid @RequestBody PostRegistDTO postRegistDTO) {
         validatePostId(id);
 
         return postService.updatePost(postRegistDTO, id);
@@ -102,16 +105,16 @@ public class PostController {
                             value = "{\n" +
                                     "  \"timestamp\": \"2024-01-10T02:17:58.323+00:00\",\n" +
                                     "  \"message\": \"There is no post with id: 10145\",\n" +
-                                    "  \"status\": \"404\"\n" +
+                                    "  \"status\": 404\n" +
                                     "}"),
                             @ExampleObject(name = "BadRequest",
                                     value = "{\n" +
                                             "  \"timestamp\": \"2024-01-10T02:17:58.323+00:00\",\n" +
                                             "  \"message\": \"The post with id 10 has already been deleted\",\n" +
-                                            "  \"status\": \"400\"\n" +
+                                            "  \"status\": 400\n" +
                                             "}")
                     }))
-    public void deletePost(@PathVariable("postId") Long id, @RequestParam("deleteType") DeleteType deleteType) {
+    public void deletePost(@PathVariable("postId") String id, @RequestParam("deleteType") DeleteType deleteType) {
         validatePostId(id);
 
         if (deleteType.equals(DeleteType.HARD)) {
@@ -121,7 +124,7 @@ public class PostController {
         }
     }
 
-    private void validatePostId(Long id) {
+    private void validatePostId(String id) {
         if (id == null) {
             throw new IllegalArgumentException("ID cannot be null");
         }

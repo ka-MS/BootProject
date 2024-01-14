@@ -5,6 +5,7 @@
 <mapper namespace= "com.example.bootproject.mapper.post.mapper.PostMapper">
     <resultMap type="com.example.bootproject.domain.post.Post" id="PostResultMap">
         <id property="id" column="id" />
+        <result property="uuid" column="uuid" />
         <result property="title" column="title" />
         <result property="content" column="content" />
         <result property="createdAt" column="created_at" />
@@ -17,7 +18,7 @@
 
     <select id="selectPostsByKeywords" resultMap="PostResultMap">
         SELECT * FROM post
-        WHERE title like CONCAT('%', #{title}, '%') OR title IS NULL
+        WHERE (title like CONCAT('%', #{title}, '%') OR title IS NULL) AND created_at IS NOT NULL And deleted_at IS NULL
         <choose>
             <when test='sortOrder != null and sortOrder.name() == "ASC"'>
                 ORDER BY created_at ASC
@@ -31,27 +32,30 @@
         </choose>
     </select>
 
-    <select id="getPost" resultMap="PostResultMap">
+    <select id="getPostByUUID" resultMap="PostResultMap">
+        select * from post where uuid = #{uuid}
+    </select>
+    <select id="getPostById" resultMap="PostResultMap">
         select * from post where id = #{id}
     </select>
 
     <insert id="insertPost" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
-        INSERT INTO post (title, content, created_at, updated_at)
-        VALUES (#{title}, #{content}, #{createdAt}, #{updatedAt})
+        INSERT INTO post (title, uuid, content, created_at, updated_at)
+        VALUES (#{title}, #{uuid}, #{content}, #{createdAt}, #{updatedAt})
     </insert>
 
     <update id="updatePost">
         UPDATE post
         SET title = #{title},content = #{content},updated_at = #{updatedAt}
-        WHERE id = #{id}
+        WHERE uuid = #{uuid}
     </update>
 
     <update id="softDeletePost">
-        UPDATE post SET deleted_at = NOW() WHERE id = #{id}
+        UPDATE post SET deleted_at = NOW() WHERE uuid = #{uuid}
     </update>
 
     <delete id="deletePost" >
-        DELETE FROM post WHERE id = #{id}
+        DELETE FROM post WHERE uuid = #{uuid}
     </delete>
 
 </mapper>

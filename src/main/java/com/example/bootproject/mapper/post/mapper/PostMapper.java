@@ -12,11 +12,13 @@ public interface PostMapper {
     List<Post> selectAllPosts();
     void insertPost(Post post);
 
-    void softDeletePost(Long id);
+    void softDeletePost(String id);
 
-    void deletePost(Long id);
+    void deletePost(String id);
 
-    Post getPost(Long id);
+    Post getPostByUUID(String uuid);
+
+    Post getPostById(Long id);
 
     void updatePost(Post post);
 
