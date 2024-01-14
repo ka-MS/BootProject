@@ -26,6 +26,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 class PostControllerTest {
@@ -40,6 +41,50 @@ class PostControllerTest {
     PostService postService;
 
     // Check whether the API sends the correct response
+    @Test
+    @DisplayName("insertPost validation 실패 테스트 Title 200자 이상")
+    void insertPost_WhenTileIsMoreThan200() throws Exception {
+        // given
+        PostRegistDTO postRegistDTO = PostRegistDTO.builder()
+                .title(String.join("", Collections.nCopies(201, "T")))
+                .content("test")
+                .build();
+
+        Gson gson = new Gson();
+        String content = gson.toJson(postRegistDTO);
+
+        // when
+        // then
+        mockMvc.perform(post("/api/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isBadRequest()) // HTTP 상태 코드 검증
+                .andExpect(jsonPath("$.message").value("Title must be up to 200 characters."));
+        ;
+    }
+
+    @Test
+    @DisplayName("insertPost validation 실패 테스트 Content 1000자 이상")
+    void insertPost_WhenContentIsMoreThan1000() throws Exception {
+        // given
+        PostRegistDTO postRegistDTO = PostRegistDTO.builder()
+                .title("Content Fail Test")
+                .content(String.join("", Collections.nCopies(1001, "T")))
+                .build();
+
+        Gson gson = new Gson();
+        String content = gson.toJson(postRegistDTO);
+
+        // when
+        // then
+        mockMvc.perform(post("/api/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isBadRequest()) // HTTP 상태 코드 검증
+                .andExpect(jsonPath("$.message").value("Content must be up to 1000 characters."));
+        ;
+    }
+
     @Test
     @DisplayName("allPosts 모든 게시글 조회 테스트")
     void allPosts() throws Exception {
@@ -62,27 +107,30 @@ class PostControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].title").value("all posts test"))
-                .andExpect(jsonPath("$",hasSize(2)));
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test
     @DisplayName("get Post 특정 게시글 조회 테스트")
     void getPost() throws Exception {
         // given
+        String uuid = "4e610b8f-af80-11ee-a127-00155dddd5ce";
         PostDetailDTO post = PostDetailDTO.builder()
                 .id(1L)
                 .title("all posts test")
                 .build();
+        post.setUuid(uuid);
 
         // when
-        given(postService.getPost(post.getId())).willReturn(post);
+        given(postService.getPost(uuid)).willReturn(post);
 
         // then
-        mockMvc.perform(get("/api/posts/"+post.getId()))
+        mockMvc.perform(get("/api/posts/" + post.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("title").value("all posts test"))
                 .andExpect(jsonPath("id").value(1))
+                .andExpect(jsonPath("uuid").value("4e610b8f-af80-11ee-a127-00155dddd5ce"))
                 .andDo(print());
     }
 
@@ -94,12 +142,12 @@ class PostControllerTest {
         posts.add(PostDetailDTO.builder()
                 .id(1L)
                 .title("all posts test")
-                .createdAt(LocalDateTime.of(2023,11,29,0,0))
+                .createdAt(LocalDateTime.of(2023, 11, 29, 0, 0))
                 .build());
         posts.add(PostDetailDTO
                 .builder().id(2L)
                 .title("all posts test2")
-                .createdAt(LocalDateTime.of(2023,11,28,0,0))
+                .createdAt(LocalDateTime.of(2023, 11, 28, 0, 0))
                 .build());
 
         // The search object value and the param value must be the same to proceed normally.
@@ -107,11 +155,11 @@ class PostControllerTest {
 
         // when then
         mockMvc.perform(get("/api/posts")
-                .param("title","test"))
+                        .param("title", "test"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].title").value("all posts test"))
-                .andExpect(jsonPath("$",hasSize(2)))
+                .andExpect(jsonPath("$", hasSize(2)))
                 .andDo(print());
     }
 

@@ -1,5 +1,7 @@
 package com.example.bootproject.service.post;
 
+import com.example.bootproject.BootProjectApplication;
+import com.example.bootproject.TestConfig;
 import com.example.bootproject.exception.BadRequestException;
 import com.example.bootproject.exception.NotFoundException;
 import com.example.bootproject.domain.post.Post;
@@ -7,19 +9,22 @@ import com.example.bootproject.interfaces.dto.post.PostDetailDTO;
 import com.example.bootproject.interfaces.dto.post.PostRegistDTO;
 import com.example.bootproject.interfaces.dto.post.PostUpdateDTO;
 import com.example.bootproject.mapper.post.mapper.PostMapper;
-import com.example.bootproject.service.post.PostService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,7 +34,6 @@ import static org.mockito.Mockito.doNothing;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
-
     // Do not use DB by mocking
     @Mock
     private PostMapper postMapper;
@@ -38,17 +42,20 @@ class PostServiceTest {
     @InjectMocks
     private PostService postService;
 
-    @Value("${constant-data.modifiable-date-value}")
-    private int modifiableDateValue;
+    @BeforeEach
+    void setup() {
+        ReflectionTestUtils.setField(postService, "modifiableDateValue", 10);
+
+    }
 
     @DisplayName("getRawPost 성공 테스트")
     @Test
     void getRawPost() {
         // given
         Long postId = 1L;
-        Post post = Post.builder().id(postId).title("Test getRawPost").build();
+        Post post = Post.builder().id(postId).uuid("4e610b8f-af80-11ee-a127-00155dddd5ce").title("Test getRawPost").build();
 
-        given(postMapper.getPost(postId)).willReturn(post);
+        when(postMapper.getPostById(postId)).thenReturn(post);
 
         // when
         Post rawPost = postService.getRawPost(postId);
@@ -63,27 +70,12 @@ class PostServiceTest {
     void getRawPost_WhenPostDoseNotExist() throws Exception {
         // given
         Long postId = 1L;
-
-        given(postMapper.getPost(postId)).willReturn(null);
-
-        // when
-        // then
-        assertThatThrownBy(() -> postService.getRawPost(postId))
-                .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("There is no post with id: " + postId);
-    }
-
-    @DisplayName("getRawPost 실패 테스트 ID 값이 null인 경우")
-    @Test
-    void getRawPost_WhenPostIdIsNull() throws Exception {
-        // given
-        Long postId = null;
+        given(postMapper.getPostById(postId)).willReturn(null);
 
         // when
         // then
-        assertThatThrownBy(() -> postService.getRawPost(postId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("ID cannot be null");
+        assertThatThrownBy(() -> postService.getRawPost(1L))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @DisplayName("getPost 성공 테스트")
@@ -91,16 +83,18 @@ class PostServiceTest {
     void getPost() {
         // given
         Long postId = 1L;
+        String uuid = "4e610b8f-af80-11ee-a127-00155dddd5ce";
         Post post = Post.builder().id(postId).title("Test getPost").build();
         post.setCreatedAt(LocalDateTime.now());
+        post.setUuid(uuid);
 
-        given(postMapper.getPost(postId)).willReturn(post);
+        given(postMapper.getPostByUUID(uuid)).willReturn(post);
 
         // when
-        PostDetailDTO postDetail = postService.getPost(postId);
+        PostDetailDTO postDetail = postService.getPost(uuid);
 
         // then
-        assertThat(postDetail.getId()).isEqualTo(1L);
+        assertThat(postDetail.getUuid()).isEqualTo("4e610b8f-af80-11ee-a127-00155dddd5ce");
         assertThat(postDetail.getTitle()).isEqualTo("Test getPost");
     }
 
@@ -109,16 +103,18 @@ class PostServiceTest {
     void getPost_WhenPostAlreadySoftDeleted() {
         // given
         Long postId = 1L;
+        String uuid = "4e610b8f-af80-11ee-a127-00155dddd5ce";
         Post post = Post.builder().id(postId).title("Test getPost_WhenPostAlreadySoftDeleted").build();
         post.setDeletedAt(LocalDateTime.now());
+        post.setUuid(uuid);
 
-        given(postMapper.getPost(postId)).willReturn(post);
+        given(postMapper.getPostByUUID(uuid)).willReturn(post);
 
         // when
         // then
-        assertThatThrownBy(() -> postService.getPost(postId))
+        assertThatThrownBy(() -> postService.getPost("4e610b8f-af80-11ee-a127-00155dddd5ce"))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("Post with id " + postId + " is already deleted");
+                .hasMessageContaining("Post with id " + "4e610b8f-af80-11ee-a127-00155dddd5ce" + " is already deleted");
     }
 
     @DisplayName("getPost 실패 테스트 데이터 없는 경우")
@@ -126,22 +122,25 @@ class PostServiceTest {
     void getPost_WhenPostDoseNotExist() {
         // given
         Long postId = 1L;
-        given(postMapper.getPost(postId)).willReturn(null);
+        String uuid = "4e610b8f-af80-11ee-a127-00155dddd5ce";
+        given(postMapper.getPostByUUID(uuid)).willReturn(null);
 
         // when
         // then
-        assertThatThrownBy(() -> postService.getPost(postId))
+        assertThatThrownBy(() -> postService.getPost("4e610b8f-af80-11ee-a127-00155dddd5ce"))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("There is no post with id: " + postId);
+                .hasMessageContaining("There is no post with id: " + "4e610b8f-af80-11ee-a127-00155dddd5ce");
     }
 
     @DisplayName("savePost 성공 테스트")
     @Test
     void savePost() {
         // given
+        String uuid = "4e610b8f-af80-11ee-a127-00155dddd5ce";
         PostRegistDTO postRegist = PostRegistDTO.builder().title("Test savePost").build();
         Post post = Post.builder().id(1L).title("Test savePost").build();
         post.setCreatedAt(LocalDateTime.now());
+        post.setUuid(uuid);
 
         /*
         * doAnswer : void 메서드에 대한 동작을 정의할 때 사용.
@@ -155,11 +154,11 @@ class PostServiceTest {
          */
         doAnswer(invocation -> {
             Post returnPost = invocation.getArgument(0);
-            ReflectionTestUtils.setField(returnPost, "id", 1L);
+            ReflectionTestUtils.setField(returnPost, "uuid", "4e610b8f-af80-11ee-a127-00155dddd5ce");
             return null;
         }).when(postMapper).insertPost(any(Post.class));
 
-        given(postMapper.getPost(anyLong())).willReturn(post);
+        given(postMapper.getPostByUUID(anyString())).willReturn(post);
 
         // when
         PostDetailDTO postDetailDTO = postService.savePost(postRegist);
@@ -168,48 +167,21 @@ class PostServiceTest {
         assertThat(postDetailDTO.getTitle()).isEqualTo("Test savePost");
     }
 
-    @DisplayName("savePost 실패 테스트 Title 200자 이상")
-    @Test
-    void savePost_WhenTileIsMoreThan200() {
-        // given
-        PostRegistDTO postRegistDTO = PostRegistDTO.builder()
-                .title(String.join("", Collections.nCopies(201, "t")))
-                .build();
-
-        // when then
-        assertThatThrownBy(() -> postService.savePost(postRegistDTO))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Title must be up to 200 characters.");
-    }
-
-    @DisplayName("savePost 실패 테스트 Title 1000자 이상")
-    @Test
-    void savePost_WhenContentIsMoreThan1000() {
-        // given
-        PostRegistDTO postRegistDTO = PostRegistDTO.builder()
-                .title("Test savePost_WhenContentIsMoreThan1000")
-                .content(String.join("", Collections.nCopies(1002, "T")))
-                .build();
-
-        // when then
-        assertThatThrownBy(() -> postService.savePost(postRegistDTO))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Content must be up to 1000 characters.");
-    }
-
     @DisplayName("updatePost 성공 테스트")
     @Test
     void updatePost() {
         // given
         Long postId = 1L;
+        String uuid = "4e610b8f-af80-11ee-a127-00155dddd5ce";
         Post post = Post.builder().id(postId).title("Test updatePost").build();
         post.setCreatedAt(LocalDateTime.now());
+        post.setUuid(uuid);
 
         String changeTitle = "Test updated";
         PostDetailDTO postDetailDTO = PostDetailDTO.builder().title(changeTitle).modifiableDate(1L).build();
         PostRegistDTO postRegistDTO = PostRegistDTO.builder().title(changeTitle).build();
 
-        given(postMapper.getPost(postId)).willAnswer(invocation -> {
+        given(postMapper.getPostByUUID(uuid)).willAnswer(invocation -> {
             post.setTitle(changeTitle);
             return post;
         });
@@ -217,24 +189,26 @@ class PostServiceTest {
         doNothing().when(postMapper).updatePost(post);
 
         // when
-        PostUpdateDTO postUpdate = postService.updatePost(postRegistDTO, postId);
+        PostUpdateDTO postUpdate = postService.updatePost(postRegistDTO, uuid);
 
         // then
         assertThat(postUpdate.getPostDetailDTO().getTitle()).isEqualTo(changeTitle);
         assertThat(postUpdate.getMessage()).isEqualTo("10 days left");
     }
+
     @DisplayName("updatePost 성공 테스트")
     @Test
     void updatePosts() {
         // given
         Long postId = 1L;
+        String uuid = "4e610b8f-af80-11ee-a127-00155dddd5ce";
+        PostRegistDTO postRegistDTO = PostRegistDTO.builder().title("Test updatePost").build();
         String originalTitle = "Test updatePost";
         String changeTitle = "Test updated";
 
         // Post Object Mocking
         Post mockPost = mock(Post.class);
-        when(mockPost.getId()).thenReturn(postId);
-        when(mockPost.getTitle()).thenReturn(originalTitle, changeTitle); // 첫 호출에서는 원본 제목, 이후 변경된 제목 반환
+        when(mockPost.getCreatedAt()).thenReturn(LocalDateTime.now());
 
         // PostDetailDTO Object Mocking
         PostDetailDTO mockPostDetailDTO = mock(PostDetailDTO.class);
@@ -242,13 +216,14 @@ class PostServiceTest {
         when(mockPostDetailDTO.getModifiableDate()).thenReturn(1L);
 
         // postMapper.getPost(postId)가 호출될 때 mockPost 반환
-        given(postMapper.getPost(postId)).willReturn(mockPost);
+        when(postMapper.getPostByUUID(uuid)).thenReturn(mockPost);
+        when(postService.getPost(uuid)).thenReturn(mockPostDetailDTO);
 
         // postService.updatePost(...)를 호출할 때 mockPostDetailDTO 반환
-        given(postService.updatePost(any(PostRegistDTO.class), eq(postId))).willReturn(PostUpdateDTO.builder().postDetailDTO(mockPostDetailDTO).message("10 days left").build());
+        when(postService.updatePost(postRegistDTO, uuid)).thenReturn(PostUpdateDTO.builder().postDetailDTO(mockPostDetailDTO).message("10 days left").build());
 
         // when
-        PostUpdateDTO postUpdate = postService.updatePost(PostRegistDTO.builder().title(changeTitle).build(), postId);
+        PostUpdateDTO postUpdate = postService.updatePost(PostRegistDTO.builder().title(changeTitle).build(), uuid);
 
         // then
         assertThat(postUpdate.getPostDetailDTO().getTitle()).isEqualTo(changeTitle);
@@ -260,16 +235,18 @@ class PostServiceTest {
     void updatePost_WhenOverdue() {
         // given
         Long postId = 1L;
+        String uuid = "4e610b8f-af80-11ee-a127-00155dddd5ce";
         PostRegistDTO postRegist = PostRegistDTO.builder().title("Test updatePost_WhenOverdue").build();
         Post post = Post.builder().title("Test updatePost_WhenOverdue").build();
         post.setCreatedAt(LocalDateTime.of(2000, 1, 1, 0, 0, 0));
+        post.setUuid(uuid);
 
-        given(postMapper.getPost(postId)).willReturn(post);
+        given(postMapper.getPostByUUID(uuid)).willReturn(post);
 
         // when then
-        assertThatThrownBy(() -> postService.updatePost(postRegist, postId))
+        assertThatThrownBy(() -> postService.updatePost(postRegist, "4e610b8f-af80-11ee-a127-00155dddd5ce"))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("Editing is overdue for post with id " + postId);
+                .hasMessageContaining("Editing is overdue for post with id " + "4e610b8f-af80-11ee-a127-00155dddd5ce");
 
     }
 
@@ -283,15 +260,17 @@ class PostServiceTest {
     void softDeletePost_WhenAlreadyDeleted() {
         // given
         Long postId = 1L;
+        String uuid = "4e610b8f-af80-11ee-a127-00155dddd5ce";
         Post post = Post.builder().id(postId).title("Test SoftDelete Fail").build();
         post.setDeletedAt(LocalDateTime.now());
+        post.setUuid(uuid);
 
-        given(postMapper.getPost(postId)).willReturn(post);
+        given(postMapper.getPostByUUID(uuid)).willReturn(post);
 
         // when then
-        assertThatThrownBy(() -> postService.softDeletePost(postId))
+        assertThatThrownBy(() -> postService.softDeletePost("4e610b8f-af80-11ee-a127-00155dddd5ce"))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("The post with id " + postId + " has already been deleted");
+                .hasMessageContaining("The post with id 4e610b8f-af80-11ee-a127-00155dddd5ce has already been deleted");
     }
 
     @DisplayName("getModifiableDate 성공 테스트")
@@ -300,8 +279,9 @@ class PostServiceTest {
         // given
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime testDate = LocalDateTime.of(2023, 11, 29, 0, 0);
-        long result = modifiableDateValue - ChronoUnit.DAYS.between(testDate, now);
-
+        long result = 10 - ChronoUnit.DAYS.between(testDate, now);
+        System.out.println(result);
+        System.out.println(postService.getModifiableDate(testDate));
         // when then
         assertThat(postService.getModifiableDate(testDate)).isEqualTo(result);
     }

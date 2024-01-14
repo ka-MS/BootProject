@@ -26,14 +26,16 @@ class PostMapperTest {
     @Test
     void getPost() {
         // given
+        String uuid = "4e610b8f-af80-11ee-a127-00155dddd5ce";
         Post post = Post.builder()
                 .title("Test getPost")
                 .build();
+        post.setUuid(uuid);
 
         postMapper.insertPost(post);
 
         // when
-        Post postMapperPost = postMapper.getPost(post.getId());
+        Post postMapperPost = postMapper.getPostByUUID(post.getUuid());
 
         // then
         assertThat(postMapperPost.getTitle()).isEqualTo("Test getPost");
@@ -44,14 +46,16 @@ class PostMapperTest {
     @Test
     void insertPost() {
         // given
+        String uuid = "4e610b8f-af80-11ee-a127-00155dddd5ce";
         Post post = Post.builder()
                 .title("Test insertPost")
                 .build();
+        post.setUuid(uuid);
 
         postMapper.insertPost(post);
 
         // when
-        Post postMapperPost = postMapper.getPost(post.getId());
+        Post postMapperPost = postMapper.getPostByUUID(post.getUuid());
 
         // then
         assertThat(postMapperPost.getTitle()).isEqualTo("Test insertPost");
@@ -87,12 +91,12 @@ class PostMapperTest {
                 .build();
 
         postMapper.insertPost(post);
-        Long id = post.getId();
+        String uuid = post.getUuid();
 
-        Post postMapperPost = postMapper.getPost(id);
+        Post postMapperPost = postMapper.getPostByUUID(uuid);
 
         // when
-        postMapper.softDeletePost(postMapperPost.getId());
+        postMapper.softDeletePost(postMapperPost.getUuid());
 
         System.out.println(postMapperPost.getDeletedAt());
         System.out.println(postMapperPost.getTitle());
@@ -112,13 +116,13 @@ class PostMapperTest {
 
         postMapper.insertPost(post);
 
-        Long id = post.getId();
+        String uuid = post.getUuid();
 
         // when
-        postMapper.deletePost(id);
+        postMapper.deletePost(uuid);
 
         // then
-        assertThat(postMapper.getPost(id)).isNull();
+        assertThat(postMapper.getPostByUUID(uuid)).isNull();
     }
 
     @Transactional
@@ -130,15 +134,15 @@ class PostMapperTest {
                 .title("Test updatePost")
                 .build();
         postMapper.insertPost(post);
-        Long id = post.getId();
+        String uuid = post.getUuid();
         Post changePost = Post.builder()
-                .id(id)
                 .title("Title Updated")
                 .build();
+        changePost.setUuid(uuid);
 
         // when
         postMapper.updatePost(changePost);
-        Post postMapperPost = postMapper.getPost(id);
+        Post postMapperPost = postMapper.getPostByUUID(uuid);
 
         // then
         assertThat(postMapperPost.getTitle()).isEqualTo("Title Updated");
