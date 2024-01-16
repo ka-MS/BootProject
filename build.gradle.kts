@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.run.BootRun
+
 plugins {
     java
     id("org.springframework.boot") version "2.7.1"
@@ -46,6 +48,11 @@ dependencies {
     // Database
     runtimeOnly("com.microsoft.sqlserver:mssql-jdbc")
     runtimeOnly("mysql:mysql-connector-java")
+    runtimeOnly("com.h2database:h2")
+}
+
+tasks.named<BootRun>("bootRun") {
+    systemProperty("spring.profiles.active", "local")
 }
 
 tasks.withType<Test> {
