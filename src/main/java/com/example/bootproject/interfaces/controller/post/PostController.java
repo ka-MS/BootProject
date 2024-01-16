@@ -58,10 +58,8 @@ public class PostController {
                                     "  \"status\": 404\n" +
                                     "}")))})
     @GetMapping("/api/posts/{postId}")
-    public PostDetailDTO getPost(@PathVariable("postId") String id) {
-        validatePostId(id);
-
-        return postService.getPost(id);
+    public PostDetailDTO getPost(@PathVariable("postId") String uuid) {
+        return postService.getPost(uuid);
     }
 
     @Operation(summary = "Post Search", description = "Search for posts that meet the conditions.", tags = {"posts"})
@@ -91,10 +89,8 @@ public class PostController {
 
     @Operation(summary = "Update post", description = "Edit the content of a specific post.", tags = {"posts"})
     @PutMapping("/api/posts/{postId}")
-    public PostUpdateDTO updatePost(@PathVariable("postId") String id, @Valid @RequestBody PostRegistDTO postRegistDTO) {
-        validatePostId(id);
-
-        return postService.updatePost(postRegistDTO, id);
+    public PostUpdateDTO updatePost(@PathVariable("postId") String uuid, @Valid @RequestBody PostRegistDTO postRegistDTO) {
+        return postService.updatePost(postRegistDTO, uuid);
     }
 
     @Operation(summary = "Delete post", description = "Delete a specific post.", tags = {"posts"})
@@ -114,19 +110,11 @@ public class PostController {
                                             "  \"status\": 400\n" +
                                             "}")
                     }))
-    public void deletePost(@PathVariable("postId") String id, @RequestParam("deleteType") DeleteType deleteType) {
-        validatePostId(id);
-
+    public void deletePost(@PathVariable("postId") String uuid, @RequestParam("deleteType") DeleteType deleteType) {
         if (deleteType.equals(DeleteType.HARD)) {
-            postService.deletePost(id);
+            postService.deletePost(uuid);
         } else {
-            postService.softDeletePost(id);
-        }
-    }
-
-    private void validatePostId(String id) {
-        if (id == null) {
-            throw new IllegalArgumentException("ID cannot be null");
+            postService.softDeletePost(uuid);
         }
     }
 }

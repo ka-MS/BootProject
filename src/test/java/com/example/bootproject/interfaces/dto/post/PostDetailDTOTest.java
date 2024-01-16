@@ -1,7 +1,5 @@
-package com.example.bootproject.interfaces.dto;
+package com.example.bootproject.interfaces.dto.post;
 
-import com.example.bootproject.interfaces.dto.post.PostDetailDTO;
-import com.example.bootproject.interfaces.dto.post.PostUpdateDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

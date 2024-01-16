@@ -5,9 +5,9 @@ import com.example.bootproject.interfaces.dto.post.PostSearch;
 import com.example.bootproject.interfaces.dto.post.PostDetailDTO;
 import com.example.bootproject.interfaces.dto.post.PostRegistDTO;
 import com.example.bootproject.service.post.PostService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,55 +34,84 @@ class PostControllerTest {
     @Autowired
     MockMvc mockMvc;
 
-    // Object to json and json to Object
-    private ObjectMapper mapper = new ObjectMapper();
-
     @MockBean
     PostService postService;
 
     // Check whether the API sends the correct response
-    @Test
-    @DisplayName("insertPost validation 실패 테스트 Title 200자 이상")
-    void insertPost_WhenTileIsMoreThan200() throws Exception {
-        // given
-        PostRegistDTO postRegistDTO = PostRegistDTO.builder()
-                .title(String.join("", Collections.nCopies(201, "T")))
-                .content("test")
-                .build();
+    @Nested
+    @DisplayName("insertPost")
+    class Insert {
 
-        Gson gson = new Gson();
-        String content = gson.toJson(postRegistDTO);
+        @Test
+        @DisplayName("insertPost validation 실패 테스트 Title 200자 이상")
+        void whenTileIsMoreThan200() throws Exception {
 
-        // when
-        // then
-        mockMvc.perform(post("/api/posts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andExpect(status().isBadRequest()) // HTTP 상태 코드 검증
-                .andExpect(jsonPath("$.message").value("Title must be up to 200 characters."));
-        ;
-    }
+            // given
+            PostRegistDTO postRegistDTO = PostRegistDTO.builder()
+                    .title(String.join("", Collections.nCopies(201, "T")))
+                    .content("test")
+                    .build();
 
-    @Test
-    @DisplayName("insertPost validation 실패 테스트 Content 1000자 이상")
-    void insertPost_WhenContentIsMoreThan1000() throws Exception {
-        // given
-        PostRegistDTO postRegistDTO = PostRegistDTO.builder()
-                .title("Content Fail Test")
-                .content(String.join("", Collections.nCopies(1001, "T")))
-                .build();
+            String content = new Gson().toJson(postRegistDTO);
 
-        Gson gson = new Gson();
-        String content = gson.toJson(postRegistDTO);
+            // when
+            // then
+            mockMvc.perform(post("/api/posts")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(content))
+                    .andExpect(status().isBadRequest()) // HTTP 상태 코드 검증
+                    .andExpect(jsonPath("$.message").value("Title must be up to 200 characters."));
+        }
 
-        // when
-        // then
-        mockMvc.perform(post("/api/posts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andExpect(status().isBadRequest()) // HTTP 상태 코드 검증
-                .andExpect(jsonPath("$.message").value("Content must be up to 1000 characters."));
-        ;
+        @Test
+        @DisplayName("insertPost validation 실패 테스트 Content 1000자 이상")
+        void whenContentIsMoreThan1000() throws Exception {
+            // given
+            PostRegistDTO postRegistDTO = PostRegistDTO.builder()
+                    .title("Content Fail Test")
+                    .content(String.join("", Collections.nCopies(1001, "T")))
+                    .build();
+
+            String content = new Gson().toJson(postRegistDTO);
+
+            // when
+            // then
+            mockMvc.perform(post("/api/posts")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(content))
+                    .andExpect(status().isBadRequest()) // HTTP 상태 코드 검증
+                    .andExpect(jsonPath("$.message").value("Content must be up to 1000 characters."));
+        }
+
+        @Test
+        @DisplayName("게시글 등록 성공 테스트")
+        void success() throws Exception {
+            // given
+            PostRegistDTO rPost = PostRegistDTO.builder()
+                    .title("all posts test")
+                    .content("test")
+                    .build();
+            PostDetailDTO post = PostDetailDTO.builder()
+                    .id(1L)
+                    .title("all posts test")
+                    .content("test")
+                    .build();
+
+            String content = new Gson().toJson(rPost);
+
+            // when
+            given(postService.savePost(any(PostRegistDTO.class))).willReturn(post);
+
+            // then
+            mockMvc.perform(post("/api/posts")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(content))
+                    .andExpect(status().isCreated())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("title").value("all posts test"))
+                    .andExpect(jsonPath("id").value(1))
+                    .andDo(print());
+        }
     }
 
     @Test
@@ -125,7 +154,7 @@ class PostControllerTest {
         given(postService.getPost(uuid)).willReturn(post);
 
         // then
-        mockMvc.perform(get("/api/posts/" + post.getId()))
+        mockMvc.perform(get("/api/posts/4e610b8f-af80-11ee-a127-00155dddd5ce"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("title").value("all posts test"))
@@ -160,36 +189,6 @@ class PostControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].title").value("all posts test"))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andDo(print());
-    }
-
-    @Test
-    @DisplayName("insertPost 게시글 등록 테스트")
-    void insertPost() throws Exception {
-        // given
-        PostRegistDTO rPost = PostRegistDTO.builder()
-                .title("all posts test")
-                .content("test")
-                .build();
-        PostDetailDTO post = PostDetailDTO.builder()
-                .id(1L)
-                .title("all posts test")
-                .content("test")
-                .build();
-        Gson gson = new Gson();
-        String content = gson.toJson(rPost);
-
-        // when
-        given(postService.savePost(any(PostRegistDTO.class))).willReturn(post);
-
-        // then
-        mockMvc.perform(post("/api/posts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("title").value("all posts test"))
-                .andExpect(jsonPath("id").value(1))
                 .andDo(print());
     }
 }

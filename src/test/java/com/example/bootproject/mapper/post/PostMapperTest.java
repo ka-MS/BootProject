@@ -5,20 +5,18 @@ import com.example.bootproject.interfaces.dto.post.PostSearch;
 import com.example.bootproject.mapper.post.mapper.PostMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 class PostMapperTest {
 
-    @Resource
+    @Autowired
     PostMapper postMapper;
 
     @Transactional

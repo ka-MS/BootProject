@@ -43,7 +43,9 @@ public class PostService {
     public Post getRawPost(Long id) {
         Post post = postMapper.getPostById(id);
 
-        validatePostExistence(post, post.getUuid());
+        if (post == null) {
+            throw new NotFoundException("There is no post with id: " + id);
+        }
 
         return post;
     }
@@ -67,7 +69,7 @@ public class PostService {
     public List<PostDetailDTO> postListSearch(PostSearch postSearch) {
         List<Post> postList = postMapper.selectPostsByKeywords(postSearch);
 
-        List<PostDetailDTO> postDetails=
+        List<PostDetailDTO> postDetails =
                 postList.stream()
                         .map(post -> post.toPostDetailDTO(getModifiableDate(post.getCreatedAt())))
                         .collect(Collectors.toList());
@@ -89,7 +91,6 @@ public class PostService {
         PostDetailDTO postDetailCheck = getPost(uuid);
         Long modifiableDate = postDetailCheck.getModifiableDate();
         Post post = postRegistDTO.toPost(uuid);
-
 
         if (modifiableDate <= modificationLimitValue) {
             throw new BadRequestException("Editing is overdue for post with id " + uuid);
@@ -125,7 +126,7 @@ public class PostService {
     }
 
     public void validatePostExistence(Post post, String uuid) {
-        if ( uuid == null ||post == null) {
+        if (post == null) {
             throw new NotFoundException("There is no post with id: " + uuid);
         }
     }
@@ -134,7 +135,7 @@ public class PostService {
         try {
             return modifiableDateValue - ChronoUnit.DAYS.between(date, nowDate);
         } catch (NullPointerException e) {
-            log.warn("Creation Time is null",e);
+            log.warn("Creation Time is null", e);
             return null;
         }
     }
