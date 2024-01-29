@@ -16,5 +16,8 @@
 ### Post CRUD API
 - GetPost API
 - SavePost API
+- SearchPost API 
+- DeletePost API
+- UpdatePost API
 
 ### 주요 기능
