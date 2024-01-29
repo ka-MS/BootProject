@@ -27,9 +27,9 @@ dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("org.springframework.boot:spring-boot-starter-jdbc")
-    implementation("org.springframework:spring-jdbc")
+//    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+//    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+//    implementation("org.springframework:spring-jdbc")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     // JSON
@@ -46,7 +46,6 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
 
     // Database
-    runtimeOnly("com.microsoft.sqlserver:mssql-jdbc")
     runtimeOnly("mysql:mysql-connector-java")
     runtimeOnly("com.h2database:h2")
 }
