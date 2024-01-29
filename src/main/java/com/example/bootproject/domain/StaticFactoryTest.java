@@ -1,7 +1,6 @@
 package com.example.bootproject.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 public class StaticFactoryTest extends BaseEntity {
