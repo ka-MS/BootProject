@@ -12,6 +12,9 @@
 
 ---
 ## API 
-Post CRUD API
+
+### Post CRUD API
+- GetPost API
+- SavePost API
 
 ### 주요 기능
